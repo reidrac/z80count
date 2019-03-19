@@ -56,7 +56,7 @@ def main():
     in_f = args.infile
     out_f = args.outfile
 
-    table_file = path.realpath(path.join(path.dirname(__file__), "z80table.json"))
+    table_file = path.join(path.dirname(path.realpath(__file__)), "z80table.json")
     with open(table_file, "rt") as fd:
         table = json.load(fd)
 
