@@ -73,62 +73,62 @@ Example:
 
 Processed with `z80count.py -s` results in:
 ```
-	push hl				; [11 .. 11/11]
-	pop bc				; [10 .. 21/21]
-	ld hl, $5800			; [10 .. 31/31]
+	push hl				; [11 .. 11]
+	pop bc				; [10 .. 21]
+	ld hl, $5800			; [10 .. 31]
 
-	ld e, 7				; [7 .. 38/38]
+	ld e, 7				; [7 .. 38]
 .fade_out_all_loop0
-	push hl				; [11 .. 49/49]
-	push bc				; [11 .. 60/60]
+	push hl				; [11 .. 49]
+	push bc				; [11 .. 60]
 
-	halt				; [4 .. 64/64]
+	halt				; [4 .. 64]
 .fade_out_all_loop1
-	ld a, (hl)			; [7 .. 71/71]
-	and 7				; [7 .. 78/78]
-	jr z, no_fade_all_ink		; [12/7 .. 90/85]
-	dec a				; [4 .. 94/89]
+	ld a, (hl)			; [7 .. 71]
+	and 7				; [7 .. 78]
+	jr z, no_fade_all_ink		; [12/7 .. 97/85]
+	dec a				; [4 .. 89]
 .no_fade_all_ink
 
-	ld d, a				; [4 .. 98/93]
+	ld d, a				; [4 .. 93]
 
-	ld a, (hl)			; [7 .. 105/100]
-	and $38				; [7 .. 112/107]
-	jr z, no_fade_all_paper		; [12/7 .. 124/114]
-	sub 8				; [7 .. 131/121]
+	ld a, (hl)			; [7 .. 100]
+	and $38				; [7 .. 107]
+	jr z, no_fade_all_paper		; [12/7 .. 126/114]
+	sub 8				; [7 .. 121]
 .no_fade_all_paper
 
-	or d				; [4 .. 135/125]
-	ld d, a				; [4 .. 139/129]
+	or d				; [4 .. 125]
+	ld d, a				; [4 .. 129]
 
-	ld a, (hl)			; [7 .. 146/136]
-	and $c0				; [7 .. 153/143]
-	or d				; [4 .. 157/147]
+	ld a, (hl)			; [7 .. 136]
+	and $c0				; [7 .. 143]
+	or d				; [4 .. 147]
 
-	ld (hl), a			; [7 .. 164/154]
-	inc hl				; [6 .. 170/160]
+	ld (hl), a			; [7 .. 154]
+	inc hl				; [6 .. 160]
 
-	dec bc				; [6 .. 176/166]
-	ld a, b				; [4 .. 180/170]
-	or c				; [4 .. 184/174]
-	jr nz, fade_out_all_loop1	; [12/7 .. 196/181]
+	dec bc				; [6 .. 166]
+	ld a, b				; [4 .. 170]
+	or c				; [4 .. 174]
+	jr nz, fade_out_all_loop1	; [12/7 .. 193/181]
 
-	pop bc				; [10 .. 206/191]
-	pop hl				; [10 .. 216/201]
-	dec e				; [4 .. 220/205]
-	jr nz, fade_out_all_loop0   	; [12/7 .. 232/212]
+	pop bc				; [10 .. 191]
+	pop hl				; [10 .. 201]
+	dec e				; [4 .. 205]
+	jr nz, fade_out_all_loop0	; [12/7 .. 224/212]
 ```
 
 Comments show subtotals, and there are two types:
- - `[A .. T0/T1]`
- - `[B/A .. T0/T1]`
+ - `[A .. T0]`
+ - `[B/A .. T1/T0]`
 
 Where A, B, T0 and T1 are:
  - A is the number of cycles of current instruction. In case of a conditional
    instruction, this is the value when the condition is not met.
  - B is the number of cycles of current instruction when the condition is met.
- - T0 is the subtotal assuming all the conditionals were not met.
- - T1 is the subtotal assuming all the conditionals were met.
+ - T0 is the subtotal when the conditional is met.
+ - T1 is the subtotal when the conditional is not met.
 
 ## Troubleshooting
 

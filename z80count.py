@@ -63,7 +63,7 @@ def main():
 
     our_comment = re.compile(r"(\[[0-9.\s/]+\])")
 
-    total = [0, 0]
+    total = total_cond = 0
     while True:
         line = in_f.readline()
         if not line:
@@ -75,16 +75,19 @@ def main():
                 cycles = entry["cycles"]
                 if "/" in cycles:
                     c = cycles.split("/")
-                    total[0] += int(c[0])
-                    total[1] += int(c[1])
+                    total += int(c[1])
+                    total_cond = total + int(c[0])
                 else:
-                    total[0] += int(cycles)
-                    total[1] += int(cycles)
+                    total += int(cycles)
+                    total_cond = 0
 
                 line = line.rstrip().rsplit(";", 1)
                 comment = "; [%s" % cycles
                 if args.subt:
-                    comment += " .. %d/%d]" % (total[0], total[1])
+                    if total_cond:
+                        comment += " .. %d/%d]" % (total_cond, total)
+                    else:
+                        comment += " .. %d]" % total
                 else:
                     comment += "]"
                 if args.debug:
