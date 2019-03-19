@@ -1,0 +1,9 @@
+*.pyc
+build
+*.egg
+*.egg-info
+dist
+*.swp
+*~
+.coverage
+*.cas
