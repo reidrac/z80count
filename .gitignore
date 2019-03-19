@@ -5,5 +5,5 @@ build
 dist
 *.swp
 *~
-.coverage
-*.cas
+.tags
+
