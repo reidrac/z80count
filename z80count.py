@@ -27,6 +27,7 @@ import json
 import sys
 import re
 import argparse
+from os import path
 
 
 def main():
@@ -55,7 +56,8 @@ def main():
     in_f = args.infile
     out_f = args.outfile
 
-    with open("z80table.json", "rt") as fd:
+    table_file = path.realpath(path.join(path.dirname(__file__), "z80table.json"))
+    with open(table_file, "rt") as fd:
         table = json.load(fd)
 
     for i in range(len(table)):
