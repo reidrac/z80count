@@ -6,6 +6,8 @@ and adds comments to the code with the cycles used by the instruction.
 It needs testing and probably a proper Z80 parser, but it works for me and the
 Z80 assembler syntax I use.
 
+![Demo with vim](./demo-vim.gif)
+
 ## Requirements
 
 The tool requires Python 3.
