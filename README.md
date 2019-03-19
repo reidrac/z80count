@@ -121,7 +121,7 @@ Processed with `z80count.py -s` results in:
 
 Comments show subtotals, and there are two types:
  - `[A .. T0]`
- - `[B/A .. T1/T0]`
+ - `[B/A .. T0/T1]`
 
 Where A, B, T0 and T1 are:
  - A is the number of cycles of current instruction. In case of a conditional
