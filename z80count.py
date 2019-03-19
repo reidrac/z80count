@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 #
 
-__version__ = "0.2"
+__version__ = "0.3"
 
 import json
 import sys
