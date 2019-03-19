@@ -1,6 +1,6 @@
 # z80count
 
-This is a simple that parses Z80 assembler using regular expressions (I know!)
+This is a simple tool that parses Z80 assembler using regular expressions (I know!)
 and adds comments to the code with the cycles used by the instruction.
 
 It needs testing and probably a proper Z80 parser, but it works for me and the
