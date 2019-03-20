@@ -123,14 +123,14 @@ Processed with `z80count.py -s` results in:
 
 Comments show subtotals, and there are two types:
  - `[A .. T0]`
- - `[B/A .. T0/T1]`
+ - `[B/A .. T1/T0]`
 
 Where A, B, T0 and T1 are:
  - A is the number of cycles of current instruction. In case of a conditional
    instruction, this is the value when the condition is not met.
  - B is the number of cycles of current instruction when the condition is met.
- - T0 is the subtotal when the conditional is met.
- - T1 is the subtotal when the conditional is not met.
+ - T0 is the subtotal when the conditional is not met.
+ - T1 is the subtotal when the conditional is met.
 
 ## Troubleshooting
 
