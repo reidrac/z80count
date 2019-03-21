@@ -65,6 +65,7 @@ def main():
 
     our_comment = re.compile(r"(\[[0-9.\s/]+\])")
 
+    table = sorted(table, key=lambda o: o["w"])
     total = total_cond = 0
     while True:
         line = in_f.readline()
@@ -72,7 +73,7 @@ def main():
             break
 
         found = False
-        for entry in sorted(table, key=lambda o: o["w"]):
+        for entry in table:
             if entry["cregex"].search(line):
                 cycles = entry["cycles"]
                 if "/" in cycles:
