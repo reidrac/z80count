@@ -61,7 +61,7 @@ def main():
         table = json.load(fd)
 
     for i in range(len(table)):
-        table[i]["cregex"] = re.compile(table[i]["regex"] + r"\s?(;.*)?")
+        table[i]["cregex"] = re.compile(table[i]["regex"] + r"\s?(;.*)?", re.I)
 
     our_comment = re.compile(r"(\[[0-9.\s/]+\])")
 
