@@ -29,6 +29,50 @@ import re
 import argparse
 from os import path
 
+OUR_COMMENT = re.compile(r"(\[[0-9.\s/]+\])")
+
+
+def z80count(line, table, total, total_cond, subt, update, tabstop=2, debug=False):
+    out = line.rstrip() + "\n"
+    for entry in table:
+        if entry["cregex"].search(line):
+            cycles = entry["cycles"]
+            if "/" in cycles:
+                c = cycles.split("/")
+                total += int(c[1])
+                total_cond += total + int(c[0])
+            else:
+                total += int(cycles)
+                total_cond = 0
+
+            line = line.rstrip().rsplit(";", 1)
+            comment = "; [%s" % cycles
+            if subt:
+                if total_cond:
+                    comment += " .. %d/%d]" % (total_cond, total)
+                else:
+                    comment += " .. %d]" % total
+            else:
+                comment += "]"
+            if debug:
+                comment += " case{%s}" % entry["case"]
+
+            if len(line) == 1:
+                comment = "\t" * tabstop + comment
+            out = line[0] + comment
+            if len(line) > 1:
+                if update:
+                    m = OUR_COMMENT.search(line[1])
+                    if m:
+                        line[1] = line[1].replace(m.group(0), "")
+                out += " "
+                out += line[1].lstrip()
+            out += "\n"
+            found = True
+            break
+
+    return (out, total, total_cond)
+
 
 def main():
 
@@ -56,14 +100,13 @@ def main():
     in_f = args.infile
     out_f = args.outfile
 
-    table_file = path.join(path.dirname(path.realpath(__file__)), "z80table.json")
+    table_file = path.join(
+        path.dirname(path.realpath(__file__)), "z80table.json")
     with open(table_file, "rt") as fd:
         table = json.load(fd)
 
     for i in range(len(table)):
         table[i]["cregex"] = re.compile(table[i]["regex"] + r"\s?(;.*)?", re.I)
-
-    our_comment = re.compile(r"(\[[0-9.\s/]+\])")
 
     table = sorted(table, key=lambda o: o["w"])
     total = total_cond = 0
@@ -72,46 +115,9 @@ def main():
         if not line:
             break
 
-        found = False
-        for entry in table:
-            if entry["cregex"].search(line):
-                cycles = entry["cycles"]
-                if "/" in cycles:
-                    c = cycles.split("/")
-                    total += int(c[1])
-                    total_cond = total + int(c[0])
-                else:
-                    total += int(cycles)
-                    total_cond = 0
-
-                line = line.rstrip().rsplit(";", 1)
-                comment = "; [%s" % cycles
-                if args.subt:
-                    if total_cond:
-                        comment += " .. %d/%d]" % (total_cond, total)
-                    else:
-                        comment += " .. %d]" % total
-                else:
-                    comment += "]"
-                if args.debug:
-                    comment += " case{%s}" % entry["case"]
-
-                if len(line) == 1:
-                    comment = "\t" * args.tabstop + comment
-                out_f.write(line[0] + comment)
-                if len(line) > 1:
-                    if args.update:
-                        m = our_comment.search(line[1])
-                        if m:
-                            line[1] = line[1].replace(m.group(0), "")
-                    out_f.write(" ")
-                    out_f.write(line[1].lstrip())
-                out_f.write("\n")
-                found = True
-                break
-
-        if not found:
-            out_f.write(line.rstrip() + "\n")
+        output, total, total_cond = z80count(
+            line, table, total, total_cond, args.subt, args.update, args.tabstop, args.debug)
+        out_f.write(output)
 
 
 if __name__ == "__main__":
