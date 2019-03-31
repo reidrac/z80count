@@ -73,6 +73,16 @@ def z80count(line, table, total, total_cond, subt, update, tabstop=2, debug=Fals
 
     return (out, total, total_cond)
 
+def init_table(table_file="z80table.json"):
+    table_file = path.join(
+        path.dirname(path.realpath(__file__)), table_file)
+    with open(table_file, "rt") as fd:
+        table = json.load(fd)
+
+    for i in range(len(table)):
+        table[i]["cregex"] = re.compile(table[i]["regex"] + r"\s?(;.*)?", re.I)
+
+    return sorted(table, key=lambda o: o["w"])
 
 def main():
 
@@ -100,15 +110,7 @@ def main():
     in_f = args.infile
     out_f = args.outfile
 
-    table_file = path.join(
-        path.dirname(path.realpath(__file__)), "z80table.json")
-    with open(table_file, "rt") as fd:
-        table = json.load(fd)
-
-    for i in range(len(table)):
-        table[i]["cregex"] = re.compile(table[i]["regex"] + r"\s?(;.*)?", re.I)
-
-    table = sorted(table, key=lambda o: o["w"])
+    table = init_table()
     total = total_cond = 0
     while True:
         line = in_f.readline()
