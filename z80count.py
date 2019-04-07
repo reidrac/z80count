@@ -112,6 +112,8 @@ class Parser(object):
         if mnemo is None or mnemo not in self._table:
             return None
         for entry in self._table[mnemo]:
+            if "cregex" not in entry:
+                entry["cregex"] = re.compile(r"^\s*" + entry["regex"] + r"\s*(;.*)?$", re.I)
             if entry["cregex"].search(line):
                 return entry
         return None
@@ -121,9 +123,6 @@ class Parser(object):
         table_file = path.join(path.dirname(path.realpath(__file__)), "z80table.json")
         with open(table_file, "rt") as fd:
             table = json.load(fd)
-
-        for i in table:
-            i["cregex"] = re.compile(r"^\s*" + i["regex"] + r"\s*(;.*)?$", re.I)
 
         table.sort(key=lambda o: o["w"])
         res = {}
