@@ -84,8 +84,7 @@ def init_table(table_file="z80table.json"):
 
     return sorted(table, key=lambda o: o["w"])
 
-def main():
-
+def parse_command_line():
     parser = argparse.ArgumentParser(
         description='Z80 Cycle Count', epilog="Copyright (C) 2019 Juan J Martinez <jjm@usebox.net>")
 
@@ -105,11 +104,21 @@ def main():
     parser.add_argument(
         "outfile", nargs="?", type=argparse.FileType('w'), default=sys.stdout,
             help="Output file")
-    args = parser.parse_args()
 
+    return parser.parse_args()
+
+
+def lookup(line, table):
+    for entry in table:
+        if entry["cregex"].search(line):
+            return entry
+    return None
+
+
+def main():
+    args = parse_command_line()
     in_f = args.infile
     out_f = args.outfile
-
     table = init_table()
     total = total_cond = 0
     while True:
