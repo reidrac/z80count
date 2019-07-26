@@ -140,3 +140,8 @@ Use `-d` flag if you think one instruction is not correctly parsed.
 
 Feel free to open a PR if you find a bug!
 
+## Authors
+
+ - Juan J. Martinez <jjm@usebox.net>
+ - Alexis Roda (https://github.com/patxoca)
+
