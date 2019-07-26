@@ -80,7 +80,7 @@ def init_table(table_file="z80table.json"):
         table = json.load(fd)
 
     for i in table:
-        i["cregex"] = re.compile(i["regex"] + r"\s?(;.*)?", re.I)
+        i["cregex"] = re.compile(r"^\s*" + i["regex"] + r"\s*(;.*)?$", re.I)
 
     return sorted(table, key=lambda o: o["w"])
 
