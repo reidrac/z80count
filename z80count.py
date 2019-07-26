@@ -88,10 +88,10 @@ def parse_command_line():
                         help="Number of tabs for new comments", default=2)
     parser.add_argument(
         "infile", nargs="?", type=argparse.FileType('r'), default=sys.stdin,
-            help="Input file")
+        help="Input file")
     parser.add_argument(
         "outfile", nargs="?", type=argparse.FileType('w'), default=sys.stdout,
-            help="Output file")
+        help="Output file")
 
     return parser.parse_args()
 
