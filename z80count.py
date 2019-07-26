@@ -79,8 +79,8 @@ def init_table(table_file="z80table.json"):
     with open(table_file, "rt") as fd:
         table = json.load(fd)
 
-    for i in range(len(table)):
-        table[i]["cregex"] = re.compile(table[i]["regex"] + r"\s?(;.*)?", re.I)
+    for i in table:
+        i["cregex"] = re.compile(i["regex"] + r"\s?(;.*)?", re.I)
 
     return sorted(table, key=lambda o: o["w"])
 
@@ -121,11 +121,7 @@ def main():
     out_f = args.outfile
     table = init_table()
     total = total_cond = 0
-    while True:
-        line = in_f.readline()
-        if not line:
-            break
-
+    for line in in_f:
         output, total, total_cond = z80count(
             line, table, total, total_cond, args.subt, args.update, args.tabstop, args.debug)
         out_f.write(output)
