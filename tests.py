@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from z80count import init_table
-from z80count import lookup
+import pytest
+
+from z80count import Parser
 
 
 data = (
@@ -905,17 +906,32 @@ data = (
 )
 
 
-def runtests():
-    table = init_table()
-
-    for instruction, cycles in data:
-        entry = lookup(instruction, table)
-        if entry is None:
-            print("Not found: {}".format(instruction))
-            continue
-        if entry["cycles"] != cycles:
-            print("Failed: {} expected '{}' != found '{}'".format(instruction, cycles, entry["cycles"]))
+@pytest.fixture(scope="module")
+def parser_table():
+    yield Parser()
 
 
-if __name__ == "__main__":
-    runtests()
+@pytest.mark.parametrize("instruction,cycles", data)
+def test_lookup(instruction, cycles, parser_table):
+    entry = parser_table.lookup(instruction)
+    assert entry is not None, "Not found: {}".format(instruction)
+    assert entry["cycles"] == cycles, "Failed: {} expected '{}' != found '{}'".format(instruction, cycles, entry["cycles"])
+
+
+@pytest.mark.parametrize("line,operator", (
+    ("foo: LD A, 1 ; load accumulator", "LD"),
+    ("foo: CALL 0xABCD", "CALL"),
+    ("foo: EI", "EI"),
+    ("LD A, 1 ; load accumulator", "LD"),
+    ("CALL 0xABCE", "CALL"),
+    ("EI", "EI"),
+    ("foo: ; some label", None),
+    ("foo:", None),
+    ("; some comment", None),
+))
+def test_extract_mnemonic(line, operator):
+    assert Parser._extract_mnemonic(line) == operator
+
+
+def test_extract_mnemonic_normalizes_operator():
+    assert Parser._extract_mnemonic("call 0xabcd") == "CALL"

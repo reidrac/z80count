@@ -32,57 +32,45 @@ from os import path
 OUR_COMMENT = re.compile(r"(\[[0-9.\s/]+\])")
 
 
-def z80count(line, table, total, total_cond, subt, update, tabstop=2, debug=False):
+def z80count(line, parser, total, total_cond, subt, update, tabstop=2, debug=False):
     out = line.rstrip() + "\n"
-    for entry in table:
-        if entry["cregex"].search(line):
-            cycles = entry["cycles"]
-            if "/" in cycles:
-                c = cycles.split("/")
-                total += int(c[1])
-                total_cond += total + int(c[0])
-            else:
-                total += int(cycles)
-                total_cond = 0
+    entry = parser.lookup(line)
+    if entry:
+        cycles = entry["cycles"]
+        if "/" in cycles:
+            c = cycles.split("/")
+            total += int(c[1])
+            total_cond += total + int(c[0])
+        else:
+            total += int(cycles)
+            total_cond = 0
 
-            line = line.rstrip().rsplit(";", 1)
-            comment = "; [%s" % cycles
-            if subt:
-                if total_cond:
-                    comment += " .. %d/%d]" % (total_cond, total)
-                else:
-                    comment += " .. %d]" % total
+        line = line.rstrip().rsplit(";", 1)
+        comment = "; [%s" % cycles
+        if subt:
+            if total_cond:
+                comment += " .. %d/%d]" % (total_cond, total)
             else:
-                comment += "]"
-            if debug:
-                comment += " case{%s}" % entry["case"]
+                comment += " .. %d]" % total
+        else:
+            comment += "]"
+        if debug:
+            comment += " case{%s}" % entry["case"]
 
-            if len(line) == 1:
-                comment = "\t" * tabstop + comment
-            out = line[0] + comment
-            if len(line) > 1:
-                if update:
-                    m = OUR_COMMENT.search(line[1])
-                    if m:
-                        line[1] = line[1].replace(m.group(0), "")
-                out += " "
-                out += line[1].lstrip()
-            out += "\n"
-            found = True
-            break
+        if len(line) == 1:
+            comment = "\t" * tabstop + comment
+        out = line[0] + comment
+        if len(line) > 1:
+            if update:
+                m = OUR_COMMENT.search(line[1])
+                if m:
+                    line[1] = line[1].replace(m.group(0), "")
+            out += " "
+            out += line[1].lstrip()
+        out += "\n"
 
     return (out, total, total_cond)
 
-def init_table(table_file="z80table.json"):
-    table_file = path.join(
-        path.dirname(path.realpath(__file__)), table_file)
-    with open(table_file, "rt") as fd:
-        table = json.load(fd)
-
-    for i in table:
-        i["cregex"] = re.compile(r"^\s*" + i["regex"] + r"\s*(;.*)?$", re.I)
-
-    return sorted(table, key=lambda o: o["w"])
 
 def parse_command_line():
     parser = argparse.ArgumentParser(
@@ -108,22 +96,62 @@ def parse_command_line():
     return parser.parse_args()
 
 
-def lookup(line, table):
-    for entry in table:
-        if entry["cregex"].search(line):
-            return entry
-    return None
+class Parser(object):
+    """Simple parser based on a table of regexes.
+
+    """
+
+    # [label:] OPERATOR [OPERANDS] [; comment]
+    _LINE_RE = re.compile(r"^([\w]+:)?\s*(?P<operator>\w+)(\s+.*)?$")
+
+    def __init__(self):
+        self._table = self._load_table()
+
+    def lookup(self, line):
+        mnemo = self._extract_mnemonic(line)
+        if mnemo is None or mnemo not in self._table:
+            return None
+        for entry in self._table[mnemo]:
+            if entry["cregex"].search(line):
+                return entry
+        return None
+
+    @classmethod
+    def _load_table(cls):
+        table_file = path.join(path.dirname(path.realpath(__file__)), "z80table.json")
+        with open(table_file, "rt") as fd:
+            table = json.load(fd)
+
+        for i in table:
+            i["cregex"] = re.compile(r"^\s*" + i["regex"] + r"\s*(;.*)?$", re.I)
+
+        table.sort(key=lambda o: o["w"])
+        res = {}
+        for i in table:
+            mnemo = cls._extract_mnemonic(i["case"])
+            assert mnemo is not None
+            if mnemo not in res:
+                res[mnemo] = []
+            res[mnemo].append(i)
+        return res
+
+    @classmethod
+    def _extract_mnemonic(cls, line):
+        match = cls._LINE_RE.match(line)
+        if match:
+            return match.group("operator").upper()
+        return None
 
 
 def main():
     args = parse_command_line()
     in_f = args.infile
     out_f = args.outfile
-    table = init_table()
+    parser = Parser()
     total = total_cond = 0
     for line in in_f:
         output, total, total_cond = z80count(
-            line, table, total, total_cond, args.subt, args.update, args.tabstop, args.debug)
+            line, parser, total, total_cond, args.subt, args.update, args.tabstop, args.debug)
         out_f.write(output)
 
 
