@@ -27,7 +27,7 @@ import re
 import argparse
 from os import path
 
-version = "0.5.3"
+version = "0.5.4"
 
 OUR_COMMENT = re.compile(r"(\[[0-9.\s/]+\])")
 
