@@ -2,7 +2,7 @@
 
 import pytest
 
-from z80count import Parser
+from z80count.z80count import Parser
 
 
 data = (
