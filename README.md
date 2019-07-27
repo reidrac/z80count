@@ -145,6 +145,10 @@ Where A, B, T0 and T1 are:
  - T0 is the subtotal when the conditional is not met.
  - T1 is the subtotal when the conditional is met.
 
+## Editor support
+
+- [z80count-el](https://github.com/patxoca/z80count-el), emacs
+
 ## Troubleshooting
 
 Here be dragons!
