@@ -6,7 +6,19 @@ and adds comments to the code with the cycles used by the instruction.
 It needs testing and probably a proper Z80 parser, but it works for me and the
 Z80 assembler syntax I use.
 
-![Demo with vim](./demo-vim.gif)
+![Demo with vim](./etc/demo-vim.gif)
+
+## Installation
+
+To install for production download the package from [z80count's releases tab](https://github.com/reidrac/z80count/releases), unpack and run:
+
+  python setup.py install
+
+To install for developmet run:
+
+  git clone https://github.com/reidrac/z80count.git
+  cd z80count
+  pip install -e ".[dev]"
 
 ## Requirements
 
@@ -144,4 +156,3 @@ Feel free to open a PR if you find a bug!
 
  - Juan J. Martinez <jjm@usebox.net>
  - Alexis Roda (https://github.com/patxoca)
-

@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-#
+# -*- coding: utf-8 -*-
+
 # Copyright (C) 2019 by Juan J. Martinez <jjm@usebox.net>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -152,7 +152,3 @@ def main():
         output, total, total_cond = z80count(
             line, parser, total, total_cond, args.subt, args.update, args.tabstop, args.debug)
         out_f.write(output)
-
-
-if __name__ == "__main__":
-    main()
