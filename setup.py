@@ -1,13 +1,21 @@
 from setuptools import find_packages
 from setuptools import setup
+from z80count.z80count import version
 
-version = "0.5.0"
+
+def readme():
+    try:
+        return open('README.md').read()
+    except:
+        return ""
+
 
 setup(
     name="z80count",
     version=version,
     description="A tool to annotate Z80 assembler with cycle counts.",
-    long_description="",
+    long_description=readme(),
+    long_description_content_type="text/markdown",
     # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         "Environment :: Console",
