@@ -1,7 +1,6 @@
 from setuptools import find_packages
 from setuptools import setup
-
-version = "0.5.0"
+from z80count.z80count import version
 
 
 def readme():
@@ -9,6 +8,7 @@ def readme():
         return open('README.md').read()
     except:
         return ""
+
 
 setup(
     name="z80count",

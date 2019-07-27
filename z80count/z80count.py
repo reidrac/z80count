@@ -21,13 +21,13 @@
 # THE SOFTWARE.
 #
 
-__version__ = "0.5.2"
-
 import json
 import sys
 import re
 import argparse
 from os import path
+
+version = "0.5.3"
 
 OUR_COMMENT = re.compile(r"(\[[0-9.\s/]+\])")
 
@@ -77,7 +77,7 @@ def parse_command_line():
         description='Z80 Cycle Count', epilog="Copyright (C) 2019 Juan J Martinez <jjm@usebox.net>")
 
     parser.add_argument(
-        "--version", action="version", version="%(prog)s " + __version__)
+        "--version", action="version", version="%(prog)s " + version)
     parser.add_argument('-d', dest='debug', action='store_true',
                         help="Enable debug (show the matched case)")
     parser.add_argument('-s', dest='subt', action='store_true',
