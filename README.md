@@ -12,13 +12,13 @@ Z80 assembler syntax I use.
 
 To install for production download the package from [z80count's releases tab](https://github.com/reidrac/z80count/releases), unpack and run:
 
-  python setup.py install
+    python setup.py install
 
 To install for developmet run:
 
-  git clone https://github.com/reidrac/z80count.git
-  cd z80count
-  pip install -e ".[dev]"
+    git clone https://github.com/reidrac/z80count.git
+    cd z80count
+    pip install -e ".[dev]"
 
 ## Requirements
 
