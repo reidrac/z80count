@@ -37,13 +37,11 @@ def z80count(line, parser, total, total_cond, subt, update, tabstop=2, debug=Fal
     entry = parser.lookup(line)
     if entry:
         cycles = entry["cycles"]
-        if "/" in cycles:
-            c = cycles.split("/")
-            total_cond = total + int(c[0])
-            total = total + int(c[1])
+        if entry["_t_states_met"]:
+            total_cond = total + entry["_t_states_met"]
         else:
-            total = total + int(cycles)
             total_cond = 0
+        total = total + entry["_t_states_or_not_met"]
 
         line = line.rstrip().rsplit(";", 1)
         comment = "; [%s" % cycles
@@ -112,8 +110,8 @@ class Parser(object):
         if mnemo is None or mnemo not in self._table:
             return None
         for entry in self._table[mnemo]:
-            if "cregex" not in entry:
-                entry["cregex"] = re.compile(r"^\s*" + entry["regex"] + r"\s*(;.*)?$", re.I)
+            if "_inited" not in entry:
+                self._init_entry(entry)
             if entry["cregex"].search(line):
                 return entry
         return None
@@ -140,6 +138,21 @@ class Parser(object):
         if match:
             return match.group("operator").upper()
         return None
+
+    @staticmethod
+    def _init_entry(entry):
+        entry["cregex"] = re.compile(r"^\s*" + entry["regex"] + r"\s*(;.*)?$", re.I)
+        cycles = entry["cycles"]
+        if "/" in cycles:
+            c = cycles.split("/")
+            t_states_or_not_met = int(c[1])
+            t_states_met = int(c[0])
+        else:
+            t_states_or_not_met = int(cycles)
+            t_states_met = 0
+        entry["_t_states_or_not_met"] = t_states_or_not_met
+        entry["_t_states_met"] = t_states_met
+        entry["_inited"] = True
 
 
 def main():
