@@ -101,7 +101,7 @@ Processed with `z80count.py -s` results in:
 .fade_out_all_loop1
 	ld a, (hl)			; [7 .. 71]
 	and 7				; [7 .. 78]
-	jr z, no_fade_all_ink		; [12/7 .. 97/85]
+	jr z, no_fade_all_ink		; [12/7 .. 90/85]
 	dec a				; [4 .. 89]
 .no_fade_all_ink
 
@@ -109,7 +109,7 @@ Processed with `z80count.py -s` results in:
 
 	ld a, (hl)			; [7 .. 100]
 	and $38				; [7 .. 107]
-	jr z, no_fade_all_paper		; [12/7 .. 126/114]
+	jr z, no_fade_all_paper		; [12/7 .. 119/114]
 	sub 8				; [7 .. 121]
 .no_fade_all_paper
 
@@ -126,12 +126,12 @@ Processed with `z80count.py -s` results in:
 	dec bc				; [6 .. 166]
 	ld a, b				; [4 .. 170]
 	or c				; [4 .. 174]
-	jr nz, fade_out_all_loop1	; [12/7 .. 193/181]
+	jr nz, fade_out_all_loop1	; [12/7 .. 186/181]
 
 	pop bc				; [10 .. 191]
 	pop hl				; [10 .. 201]
 	dec e				; [4 .. 205]
-	jr nz, fade_out_all_loop0	; [12/7 .. 224/212]
+	jr nz, fade_out_all_loop0	; [12/7 .. 217/212]
 ```
 
 Comments show subtotals, and there are two types:

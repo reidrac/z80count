@@ -39,10 +39,10 @@ def z80count(line, parser, total, total_cond, subt, update, tabstop=2, debug=Fal
         cycles = entry["cycles"]
         if "/" in cycles:
             c = cycles.split("/")
-            total += int(c[1])
-            total_cond += total + int(c[0])
+            total_cond = total + int(c[0])
+            total = total + int(c[1])
         else:
-            total += int(cycles)
+            total = total + int(cycles)
             total_cond = 0
 
         line = line.rstrip().rsplit(";", 1)
