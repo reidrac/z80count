@@ -6,7 +6,7 @@ and adds comments to the code with the cycles used by the instruction.
 It needs testing and probably a proper Z80 parser, but it works for me and the
 Z80 assembler syntax I use.
 
-![Demo with vim](./etc/demo-vim.gif)
+![Demo with vim](https://github.com/reidrac/z80count/raw/master//etc/demo-vim.gif)
 
 ## Installation
 
