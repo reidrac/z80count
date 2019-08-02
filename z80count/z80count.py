@@ -32,42 +32,54 @@ version = "0.6.0"
 OUR_COMMENT = re.compile(r"(\[[0-9.\s/]+\])")
 
 
-def z80count(line, parser, total, total_cond, subt, update, tabstop=2, debug=False):
+def z80count(line, parser, total, subt, update, tabstop=2, debug=False):
     out = line.rstrip() + "\n"
     entry = parser.lookup(line)
     if entry:
-        cycles = entry["cycles"]
-        if entry["_t_states_met"]:
-            total_cond = total + entry["_t_states_met"]
+        total, total_cond = update_counters(entry, total)
+        out = format_line(
+            line, entry, total, total_cond, subt, update, tabstop=2, debug=False
+        )
+    return (out, total)
+
+
+def update_counters(entry, total):
+    if entry["_t_states_met"]:
+        total_cond = total + entry["_t_states_met"]
+    else:
+        total_cond = 0
+    total = total + entry["_t_states_or_not_met"]
+
+    return (total, total_cond)
+
+
+def format_line(line, entry, total, total_cond, subt, update, tabstop, debug):
+    cycles = entry["cycles"]
+    line = line.rstrip().rsplit(";", 1)
+    comment = "; [%s" % cycles
+    if subt:
+        if total_cond:
+            comment += " .. %d/%d]" % (total_cond, total)
         else:
-            total_cond = 0
-        total = total + entry["_t_states_or_not_met"]
+            comment += " .. %d]" % total
+    else:
+        comment += "]"
+    if debug:
+        comment += " case{%s}" % entry["case"]
 
-        line = line.rstrip().rsplit(";", 1)
-        comment = "; [%s" % cycles
-        if subt:
-            if total_cond:
-                comment += " .. %d/%d]" % (total_cond, total)
-            else:
-                comment += " .. %d]" % total
-        else:
-            comment += "]"
-        if debug:
-            comment += " case{%s}" % entry["case"]
+    if len(line) == 1:
+        comment = "\t" * tabstop + comment
+    out = line[0] + comment
+    if len(line) > 1:
+        if update:
+            m = OUR_COMMENT.search(line[1])
+            if m:
+                line[1] = line[1].replace(m.group(0), "")
+        out += " "
+        out += line[1].lstrip()
+    out += "\n"
 
-        if len(line) == 1:
-            comment = "\t" * tabstop + comment
-        out = line[0] + comment
-        if len(line) > 1:
-            if update:
-                m = OUR_COMMENT.search(line[1])
-                if m:
-                    line[1] = line[1].replace(m.group(0), "")
-            out += " "
-            out += line[1].lstrip()
-        out += "\n"
-
-    return (out, total, total_cond)
+    return out
 
 
 def parse_command_line():
@@ -160,8 +172,8 @@ def main():
     in_f = args.infile
     out_f = args.outfile
     parser = Parser()
-    total = total_cond = 0
+    total = 0
     for line in in_f:
-        output, total, total_cond = z80count(
-            line, parser, total, total_cond, args.subt, args.update, args.tabstop, args.debug)
+        output, total = z80count(
+            line, parser, total, args.subt, args.update, args.tabstop, args.debug)
         out_f.write(output)
