@@ -32,7 +32,15 @@ version = "0.6.0"
 OUR_COMMENT = re.compile(r"(\[[0-9.\s/]+\])")
 
 
-def z80count(line, parser, total, total_cond, subt, update, tabstop=2, debug=False):
+def z80count(line,
+             parser,
+             total,
+             total_cond,
+             subt,
+             no_update,
+             tabstop=2,
+             debug=False,
+             ):
     out = line.rstrip() + "\n"
     entry = parser.lookup(line)
     if entry:
@@ -61,7 +69,7 @@ def z80count(line, parser, total, total_cond, subt, update, tabstop=2, debug=Fal
             comment = "\t" * tabstop + comment
         out = line[0] + comment
         if len(line) > 1:
-            if update:
+            if not no_update:
                 m = OUR_COMMENT.search(line[1])
                 if m:
                     line[1] = line[1].replace(m.group(0), "")
@@ -74,7 +82,8 @@ def z80count(line, parser, total, total_cond, subt, update, tabstop=2, debug=Fal
 
 def parse_command_line():
     parser = argparse.ArgumentParser(
-        description='Z80 Cycle Count', epilog="Copyright (C) 2019 Juan J Martinez <jjm@usebox.net>")
+        description='Z80 Cycle Count',
+        epilog="Copyright (C) 2019 Juan J Martinez <jjm@usebox.net>")
 
     parser.add_argument(
         "--version", action="version", version="%(prog)s " + version)
@@ -82,8 +91,8 @@ def parse_command_line():
                         help="Enable debug (show the matched case)")
     parser.add_argument('-s', dest='subt', action='store_true',
                         help="Include subtotal")
-    parser.add_argument('-u', dest='update', action='store_true',
-                        help="Update existing count if available")
+    parser.add_argument('-n', dest='no_update', action='store_true',
+                        help="Do not update existing count if available")
     parser.add_argument('-t', dest='tabstop', type=int,
                         help="Number of tabs for new comments", default=2)
     parser.add_argument(
@@ -97,6 +106,7 @@ def parse_command_line():
 
 
 class Parser(object):
+
     """Simple parser based on a table of regexes.
 
     """
@@ -113,14 +123,16 @@ class Parser(object):
             return None
         for entry in self._table[mnemo]:
             if "cregex" not in entry:
-                entry["cregex"] = re.compile(r"^\s*" + entry["regex"] + r"\s*(;.*)?$", re.I)
+                entry["cregex"] = re.compile(
+                    r"^\s*" + entry["regex"] + r"\s*(;.*)?$", re.I)
             if entry["cregex"].search(line):
                 return entry
         return None
 
     @classmethod
     def _load_table(cls):
-        table_file = path.join(path.dirname(path.realpath(__file__)), "z80table.json")
+        table_file = path.join(
+            path.dirname(path.realpath(__file__)), "z80table.json")
         with open(table_file, "rt") as fd:
             table = json.load(fd)
 
@@ -150,5 +162,6 @@ def main():
     total = total_cond = 0
     for line in in_f:
         output, total, total_cond = z80count(
-            line, parser, total, total_cond, args.subt, args.update, args.tabstop, args.debug)
+            line, parser, total, total_cond,
+            args.subt, args.no_update, args.tabstop, args.debug)
         out_f.write(output)
