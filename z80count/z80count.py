@@ -32,13 +32,20 @@ version = "0.6.0"
 OUR_COMMENT = re.compile(r"(\[[0-9.\s/]+\])")
 
 
-def z80count(line, parser, total, subt, update, tabstop=2, debug=False):
+def z80count(line,
+             parser,
+             total,
+             subt,
+             no_update,
+             tabstop=2,
+             debug=False,
+             ):
     out = line.rstrip() + "\n"
     entry = parser.lookup(line)
     if entry:
         total, total_cond = update_counters(entry, total)
         out = format_line(
-            line, entry, total, total_cond, subt, update, tabstop=2, debug=False
+            line, entry, total, total_cond, subt, not no_update, tabstop=2, debug=False
         )
     return (out, total)
 
@@ -84,7 +91,8 @@ def format_line(line, entry, total, total_cond, subt, update, tabstop, debug):
 
 def parse_command_line():
     parser = argparse.ArgumentParser(
-        description='Z80 Cycle Count', epilog="Copyright (C) 2019 Juan J Martinez <jjm@usebox.net>")
+        description='Z80 Cycle Count',
+        epilog="Copyright (C) 2019 Juan J Martinez <jjm@usebox.net>")
 
     parser.add_argument(
         "--version", action="version", version="%(prog)s " + version)
@@ -92,8 +100,8 @@ def parse_command_line():
                         help="Enable debug (show the matched case)")
     parser.add_argument('-s', dest='subt', action='store_true',
                         help="Include subtotal")
-    parser.add_argument('-u', dest='update', action='store_true',
-                        help="Update existing count if available")
+    parser.add_argument('-n', dest='no_update', action='store_true',
+                        help="Do not update existing count if available")
     parser.add_argument('-t', dest='tabstop', type=int,
                         help="Number of tabs for new comments", default=2)
     parser.add_argument(
@@ -107,6 +115,7 @@ def parse_command_line():
 
 
 class Parser(object):
+
     """Simple parser based on a table of regexes.
 
     """
@@ -130,7 +139,8 @@ class Parser(object):
 
     @classmethod
     def _load_table(cls):
-        table_file = path.join(path.dirname(path.realpath(__file__)), "z80table.json")
+        table_file = path.join(
+            path.dirname(path.realpath(__file__)), "z80table.json")
         with open(table_file, "rt") as fd:
             table = json.load(fd)
 
@@ -175,5 +185,5 @@ def main():
     total = 0
     for line in in_f:
         output, total = z80count(
-            line, parser, total, args.subt, args.update, args.tabstop, args.debug)
+            line, parser, total, args.subt, args.no_update, args.tabstop, args.debug)
         out_f.write(output)
