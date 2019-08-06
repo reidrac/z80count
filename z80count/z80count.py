@@ -30,6 +30,7 @@ from os import path
 version = "0.7.0"
 
 OUR_COMMENT = re.compile(r"(\[[0-9.\s/]+\])")
+DEF_COLUMN = 50
 
 
 def z80count(line,
@@ -161,14 +162,13 @@ def parse_command_line():
                         help="Include subtotal")
     parser.add_argument('-n', dest='no_update', action='store_true',
                         help="Do not update existing count if available")
-    parser.add_argument('-t', dest='tab_width', type=int,
+    parser.add_argument('-T', dest='tab_width', type=int,
                         help="Number of spaces for each tab", default=8)
-    parser.add_argument('--use-spaces', dest='use_spaces', action='store_true',
-                        help="Use spaces to align newly added comments", default=True)
-    parser.add_argument('--use-tabs', dest='use_spaces', action='store_false',
-                        help="Use tabs to align newly added comments")
+    parser.add_argument('-t', '--use-tabs', dest='use_tabs', action='store_true',
+                        help="Use tabs to align newly added comments (default: use spaces)")
     parser.add_argument('-c', '--column', dest='column', type=int,
-                        help="Column to align newly added comments", default=50)
+                        help="Column to align newly added comments (default: %d)" % DEF_COLUMN,
+                        default=DEF_COLUMN)
 
     parser.add_argument(
         "infile", nargs="?", type=argparse.FileType('r'), default=sys.stdin,
@@ -252,7 +252,7 @@ def main():
     for line in in_f:
         output, total = z80count(
             line, parser, total, args.subt, args.no_update,
-            args.column, not args.use_spaces, args.tab_width,
+            args.column, args.use_tabs, args.tab_width,
             args.debug,
         )
         out_f.write(output)
