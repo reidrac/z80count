@@ -197,7 +197,7 @@ class Parser(object):
         if mnemo is None or mnemo not in self._table:
             return None
         for entry in self._table[mnemo]:
-            if "_inited" not in entry:
+            if "_initialized" not in entry:
                 self._init_entry(entry)
             if entry["cregex"].search(line):
                 return entry
@@ -240,7 +240,7 @@ class Parser(object):
             t_states_met = 0
         entry["_t_states_or_not_met"] = t_states_or_not_met
         entry["_t_states_met"] = t_states_met
-        entry["_inited"] = True
+        entry["_initialized"] = True
 
 
 def main():
