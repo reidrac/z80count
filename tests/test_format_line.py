@@ -41,16 +41,16 @@ def test_line_length(line, tab_width, expected):
     ("foo",      8, "    "),
     (" foo",     8, "   "),
     ("foo  ",    8, "  "),
-    ("foo\t",    8, ""),
-    ("foo     ", 8, ""),
+    ("foo\t",    8, " "),
+    ("foo     ", 8, " "),
 
     ("foo",      9, "\t"),
     (" foo",     9, "\t"),
     ("foo  ",    9, "\t"),
-    ("foo\t",    9, ""),
-    ("foo     ", 9, ""),
+    ("foo\t",    9, " "),
+    ("foo     ", 9, " "),
 
-    ("longer than tab stop", 9, ""),
+    ("longer than tab stop", 9, " "),
 ))
 def test_comment_alignment_with_tabs(line, column, expected):
     assert comment_alignment(line, column, use_tabs=True, tab_width=8) == expected
@@ -78,19 +78,19 @@ def test_comment_alignment_bug_003():
     ("foo",      8, "    "),
     (" foo",     8, "   "),
     ("foo  ",    8, "  "),
-    ("foo\t",    8, ""),
-    ("foo    ",  8, ""),
-    ("foo     ", 8, ""),
+    ("foo\t",    8, " "),
+    ("foo    ",  8, " "),
+    ("foo     ", 8, " "),
 
     ("foo",       9, "     "),
     (" foo",      9, "    "),
     ("foo  ",     9, "   "),
-    ("foo\t",     9, ""),
+    ("foo\t",     9, " "),
     ("foo    ",   9, " "),
-    ("foo     ",  9, ""),
-    ("foo      ", 9, ""),
+    ("foo     ",  9, " "),
+    ("foo      ", 9, " "),
 
-    ("longer than tab stop", 9, ""),
+    ("longer than tab stop", 9, " "),
 ))
 def test_comment_alignment_with_spaces(line, column, expected):
     assert comment_alignment(line, column, use_tabs=False, tab_width=8) == expected
@@ -144,3 +144,8 @@ def test_adds_cycles_in_previous_comment_if_update_is_False():
 def test_updates_cycles_in_previous_comment_if_update_is_True():
     out = _run("  OPCODE   ; [3] comment ", "5", update=True)
     assert out == "  OPCODE   ; [5] comment\n"
+
+
+def test_line_longer_than_comment_column():
+    out = _run("  A VERY LONG LINE", "5", update=True)
+    assert out == "  A VERY LONG LINE ; [5]\n"

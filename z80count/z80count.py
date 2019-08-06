@@ -131,7 +131,7 @@ def comment_alignment(line, column, use_tabs=False, tab_width=8):
     expected_length = column - 1
     length = line_length(line, tab_width)
     if length >= expected_length:
-        return ""
+        return " "  # add an space before the colon
 
     if use_tabs:
         tab_stop = (expected_length // tab_width) * tab_width + 1
