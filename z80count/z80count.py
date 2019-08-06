@@ -164,11 +164,11 @@ def parse_command_line():
     parser.add_argument('-t', dest='tab_width', type=int,
                         help="Number of spaces for each tab", default=8)
     parser.add_argument('--use-spaces', dest='use_spaces', action='store_true',
-                        help="Use spaces to align newly added comments.", default=True)
+                        help="Use spaces to align newly added comments", default=True)
     parser.add_argument('--use-tabs', dest='use_spaces', action='store_false',
-                        help="Use tabs to align newly added comments.")
+                        help="Use tabs to align newly added comments")
     parser.add_argument('-c', '--column', dest='column', type=int,
-                        help="Column to align newly added comments.", default=50)
+                        help="Column to align newly added comments", default=50)
 
     parser.add_argument(
         "infile", nargs="?", type=argparse.FileType('r'), default=sys.stdin,
