@@ -39,12 +39,11 @@ With `-s` the tool adds a subtotal.
 
 By default `z80count` will try to update comments replacing existing annotations.
 
-Comments added by `z80count` are aligned to the column given in the
-`-c` (`--column`) option (50 by default). By default the comments are
-aligned using spaces, if you prefer tabs instead use the `--use-tabs`
-option. In order to compute the padding `z80count` assumes that a
-`TAB` equals 4 spaces. Use the option `-t` to override this.
-
+Comments added by `z80count` are aligned to the column given in the `-c`
+(`--column`) option (50 by default). By default the comments are aligned using
+spaces, if you prefer tabs instead use the `-t` option. In order to compute the
+padding `z80count` assumes that a `TAB` equals 8 spaces. Use the
+option `-T` to override this.
 
 Example:
 ```asm
