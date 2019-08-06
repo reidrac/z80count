@@ -107,27 +107,6 @@ def comment_alignment(line, column, use_tabs=False, tab_width=8):
 
     """
 
-    # The code is a bit obscure. I hope this diagram helps to clarify.
-    #
-    #         1         2         3         4         5         6         7
-    #1234567890123456789012345678901234567890123456789012345678901234567890
-    #.   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .
-    #    add hl, de                                 ; comment
-    #^            ^          ^   ^               ^ ^^
-    #|            |          |   |               | ||
-    #\__ LENGTH __/          \___/               | ||
-    #^                     TAB_WIDTH             | ||
-    #|                                           | ||
-    #\_________________ TAB_STOP ________________/ ||
-    #^                                             ||
-    #\_____________ EXPECTED_LENGTH _______________/|
-    #                                               |
-    #                                             COLUMN
-    #              ^                            ^^ ^
-    #              |                            || |
-    #              \________ EXTRA_TABS ________/\_/
-    #                                        EXTRA_SPACES
-
     expected_length = column - 1
     length = line_length(line, tab_width)
     if length >= expected_length:
