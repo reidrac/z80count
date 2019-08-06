@@ -38,9 +38,9 @@ def z80count(line,
              subt,
              no_update,
              column=50,
-             debug=False,
              use_tabs=False,
              tab_width=8,
+             debug=False,
              ):
     out = line.rstrip() + "\n"
     entry = parser.lookup(line)
@@ -251,7 +251,8 @@ def main():
     total = 0
     for line in in_f:
         output, total = z80count(
-            line, parser, total, args.subt, args.no_update, args.column, args.debug,
-            not args.use_spaces, args.tab_width,
+            line, parser, total, args.subt, args.no_update,
+            args.column, not args.use_spaces, args.tab_width,
+            args.debug,
         )
         out_f.write(output)
