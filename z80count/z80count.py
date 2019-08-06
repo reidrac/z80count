@@ -48,7 +48,7 @@ def z80count(line,
         total, total_cond = update_counters(entry, total)
         out = format_line(
             line, entry, total, total_cond, subt, update=not no_update,
-            col_stop=column, debug=debug, use_tabs=use_tabs,
+            column=column, debug=debug, use_tabs=use_tabs,
             tab_width=tab_width,
         )
     return (out, total)
