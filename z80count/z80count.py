@@ -31,6 +31,7 @@ version = "0.7.0"
 
 OUR_COMMENT = re.compile(r"(\[[0-9.\s/]+\])")
 DEF_COLUMN = 50
+DEF_TABSTOP = 8
 
 
 def z80count(line,
@@ -163,7 +164,8 @@ def parse_command_line():
     parser.add_argument('-n', dest='no_update', action='store_true',
                         help="Do not update existing count if available")
     parser.add_argument('-T', dest='tab_width', type=int,
-                        help="Number of spaces for each tab", default=8)
+                        help="Number of spaces for each tab (default: %d)" % DEF_TABSTOP,
+                        default=DEF_TABSTOP)
     parser.add_argument('-t', '--use-tabs', dest='use_tabs', action='store_true',
                         help="Use tabs to align newly added comments (default: use spaces)")
     parser.add_argument('-c', '--column', dest='column', type=int,
@@ -181,10 +183,7 @@ def parse_command_line():
 
 
 class Parser(object):
-
-    """Simple parser based on a table of regexes.
-
-    """
+    """Simple parser based on a table of regexes."""
 
     # [label:] OPERATOR [OPERANDS] [; comment]
     _LINE_RE = re.compile(r"^([\w]+:)?\s*(?P<operator>\w+)(\s+.*)?$")
