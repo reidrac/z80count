@@ -96,50 +96,50 @@ Example:
 
 Processed with `z80count.py -s` results in:
 ```asm
-	push hl				; [11 .. 11]
-	pop bc				; [10 .. 21]
-	ld hl, $5800		; [10 .. 31]
+        push hl                         ; [11 .. 11]
+        pop bc                          ; [10 .. 21]
+        ld hl, $5800                    ; [10 .. 31]
 
-	ld e, 7				; [7 .. 38]
+        ld e, 7                         ; [7 .. 38]
 .fade_out_all_loop0
-	push hl				; [11 .. 49]
-	push bc				; [11 .. 60]
+        push hl                         ; [11 .. 49]
+        push bc                         ; [11 .. 60]
 
-	halt				; [4 .. 64]
+        halt                            ; [4 .. 64]
 .fade_out_all_loop1
-	ld a, (hl)			; [7 .. 71]
-	and 7				; [7 .. 78]
-	jr z, no_fade_all_ink ; [12/7 .. 90/85]
-	dec a				; [4 .. 89]
+        ld a, (hl)                      ; [7 .. 71]
+        and 7                           ; [7 .. 78]
+        jr z, no_fade_all_ink           ; [12/7 .. 90/85]
+        dec a                           ; [4 .. 89]
 .no_fade_all_ink
 
-	ld d, a				; [4 .. 93]
+        ld d, a                         ; [4 .. 93]
 
-	ld a, (hl)			; [7 .. 100]
-	and $38				; [7 .. 107]
-	jr z, no_fade_all_paper	; [12/7 .. 119/114]
-	sub 8				; [7 .. 121]
+        ld a, (hl)                      ; [7 .. 100]
+        and $38                         ; [7 .. 107]
+        jr z, no_fade_all_paper         ; [12/7 .. 119/114]
+        sub 8                           ; [7 .. 121]
 .no_fade_all_paper
 
-	or d				; [4 .. 125]
-	ld d, a				; [4 .. 129]
+        or d                            ; [4 .. 125]
+        ld d, a                         ; [4 .. 129]
 
-	ld a, (hl)			; [7 .. 136]
-	and $c0				; [7 .. 143]
-	or d				; [4 .. 147]
+        ld a, (hl)                      ; [7 .. 136]
+        and $c0                         ; [7 .. 143]
+        or d                            ; [4 .. 147]
 
-	ld (hl), a			; [7 .. 154]
-	inc hl				; [6 .. 160]
+        ld (hl), a                      ; [7 .. 154]
+        inc hl                          ; [6 .. 160]
 
-	dec bc				; [6 .. 166]
-	ld a, b				; [4 .. 170]
-	or c				; [4 .. 174]
-	jr nz, fade_out_all_loop1 ; [12/7 .. 186/181]
+        dec bc                          ; [6 .. 166]
+        ld a, b                         ; [4 .. 170]
+        or c                            ; [4 .. 174]
+        jr nz, fade_out_all_loop1       ; [12/7 .. 186/181]
 
-	pop bc				; [10 .. 191]
-	pop hl				; [10 .. 201]
-	dec e				; [4 .. 205]
-	jr nz, fade_out_all_loop0 ; [12/7 .. 217/212]
+        pop bc                          ; [10 .. 191]
+        pop hl                          ; [10 .. 201]
+        dec e                           ; [4 .. 205]
+        jr nz, fade_out_all_loop0       ; [12/7 .. 217/212]
 ```
 
 Comments show subtotals, and there are two types:
