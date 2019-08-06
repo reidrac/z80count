@@ -188,7 +188,7 @@ def parse_command_line():
                         help="Use spaces to align newly added comments.", default=True)
     parser.add_argument('--use-tabs', dest='use_spaces', action='store_false',
                         help="Use tabs to align newly added comments.")
-    parser.add_argument('-c', '--columns', dest='column', type=int,
+    parser.add_argument('-c', '--column', dest='column', type=int,
                         help="Column to align newly added comments.", default=50)
 
     parser.add_argument(
