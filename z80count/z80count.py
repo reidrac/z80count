@@ -183,7 +183,7 @@ def parse_command_line():
     parser.add_argument('-n', dest='no_update', action='store_true',
                         help="Do not update existing count if available")
     parser.add_argument('-t', dest='tab_width', type=int,
-                        help="Number of spacesx for each tab", default=8)
+                        help="Number of spaces for each tab", default=8)
     parser.add_argument('--use-spaces', dest='use_spaces', action='store_true',
                         help="Use spaces to align newly added comments.", default=True)
     parser.add_argument('--use-tabs', dest='use_spaces', action='store_false',
