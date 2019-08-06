@@ -39,6 +39,13 @@ With `-s` the tool adds a subtotal.
 
 By default `z80count` will try to update comments replacing existing annotations.
 
+Comments added by `z80count` are aligned to the column given in the
+`-c` (`--column`) option (50 by default). By default the comments are
+aligned using spaces, if you prefer tabs instead use the `--use-tabs`
+option. In order to compute the padding `z80count` assumes that a
+`TAB` equals 4 spaces. Use the option `-t` to override this.
+
+
 Example:
 ```asm
 	push hl
@@ -91,7 +98,7 @@ Processed with `z80count.py -s` results in:
 ```asm
 	push hl				; [11 .. 11]
 	pop bc				; [10 .. 21]
-	ld hl, $5800			; [10 .. 31]
+	ld hl, $5800		; [10 .. 31]
 
 	ld e, 7				; [7 .. 38]
 .fade_out_all_loop0
@@ -102,7 +109,7 @@ Processed with `z80count.py -s` results in:
 .fade_out_all_loop1
 	ld a, (hl)			; [7 .. 71]
 	and 7				; [7 .. 78]
-	jr z, no_fade_all_ink		; [12/7 .. 90/85]
+	jr z, no_fade_all_ink ; [12/7 .. 90/85]
 	dec a				; [4 .. 89]
 .no_fade_all_ink
 
@@ -110,7 +117,7 @@ Processed with `z80count.py -s` results in:
 
 	ld a, (hl)			; [7 .. 100]
 	and $38				; [7 .. 107]
-	jr z, no_fade_all_paper		; [12/7 .. 119/114]
+	jr z, no_fade_all_paper	; [12/7 .. 119/114]
 	sub 8				; [7 .. 121]
 .no_fade_all_paper
 
@@ -127,12 +134,12 @@ Processed with `z80count.py -s` results in:
 	dec bc				; [6 .. 166]
 	ld a, b				; [4 .. 170]
 	or c				; [4 .. 174]
-	jr nz, fade_out_all_loop1	; [12/7 .. 186/181]
+	jr nz, fade_out_all_loop1 ; [12/7 .. 186/181]
 
 	pop bc				; [10 .. 191]
 	pop hl				; [10 .. 201]
 	dec e				; [4 .. 205]
-	jr nz, fade_out_all_loop0	; [12/7 .. 217/212]
+	jr nz, fade_out_all_loop0 ; [12/7 .. 217/212]
 ```
 
 Comments show subtotals, and there are two types:
