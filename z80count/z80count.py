@@ -37,15 +37,19 @@ def z80count(line,
              total,
              subt,
              no_update,
-             tabstop=2,
+             column=50,
              debug=False,
+             use_tabs=False,
+             tab_width=8,
              ):
     out = line.rstrip() + "\n"
     entry = parser.lookup(line)
     if entry:
         total, total_cond = update_counters(entry, total)
         out = format_line(
-            line, entry, total, total_cond, subt, not no_update, tabstop=2, debug=False
+            line, entry, total, total_cond, subt, update=not no_update,
+            col_stop=column, debug=debug, use_tabs=use_tabs,
+            tab_width=tab_width,
         )
     return (out, total)
 
@@ -60,7 +64,8 @@ def update_counters(entry, total):
     return (total, total_cond)
 
 
-def format_line(line, entry, total, total_cond, subt, update, tabstop, debug):
+def format_line(line, entry, total, total_cond, subt, update, column,
+                debug, use_tabs, tab_width):
     cycles = entry["cycles"]
     line = line.rstrip().rsplit(";", 1)
     comment = "; [%s" % cycles
@@ -75,7 +80,7 @@ def format_line(line, entry, total, total_cond, subt, update, tabstop, debug):
         comment += " case{%s}" % entry["case"]
 
     if len(line) == 1:
-        comment = "\t" * tabstop + comment
+        comment = comment_alignment(line[0], column, use_tabs, tab_width) + comment
     out = line[0] + comment
     if len(line) > 1:
         if update:
@@ -87,6 +92,81 @@ def format_line(line, entry, total, total_cond, subt, update, tabstop, debug):
     out += "\n"
 
     return out
+
+
+def comment_alignment(line, column, use_tabs=False, tab_width=8):
+    """Calculate the spacing required for comment alignment.
+
+    :param str line: code line
+    :param int column: column in which we want the comment to start
+    :param bool use_tabs: use tabs instead of spaces
+    :param int tab_width: tab width
+
+    :returns: the spacing
+    :rtype: str
+
+    """
+
+    # The code is a bit obscure. I hope this diagram helps to clarify.
+    #
+    #         1         2         3         4         5         6         7
+    #1234567890123456789012345678901234567890123456789012345678901234567890
+    #.   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .
+    #    add hl, de                                 ; comment
+    #^            ^          ^   ^               ^ ^^
+    #|            |          |   |               | ||
+    #\__ LENGTH __/          \___/               | ||
+    #^                     TAB_WIDTH             | ||
+    #|                                           | ||
+    #\_________________ TAB_STOP ________________/ ||
+    #^                                             ||
+    #\_____________ EXPECTED_LENGTH _______________/|
+    #                                               |
+    #                                             COLUMN
+    #              ^                            ^^ ^
+    #              |                            || |
+    #              \________ EXTRA_TABS ________/\_/
+    #                                        EXTRA_SPACES
+
+    expected_length = column - 1
+    length = line_length(line, tab_width)
+    if length >= expected_length:
+        return ""
+
+    if use_tabs:
+        tab_stop = (expected_length // tab_width) * tab_width + 1
+        if tab_stop > length:
+            extra_tabs = (tab_stop - length) // tab_width
+            if length % tab_width > 1:
+                extra_tabs += 1  # complete partial tab
+            extra_spaces = expected_length - tab_stop
+        else:
+            extra_tabs = 0
+            extra_spaces = expected_length - length
+    else:
+        extra_tabs = 0
+        extra_spaces = expected_length - length
+
+    return "\t" * extra_tabs + " " * extra_spaces
+
+
+def line_length(line, tab_width):
+    """Calculate the length of a line taking TABs into account.
+
+    :param str line: line of code
+    :param int tab_width: tab width
+
+    :returns: The length of the line
+    :rtype: int
+
+    """
+    length = 0
+    for i in line:
+        if i == "\t":
+            length = ((length + tab_width) // tab_width) * tab_width
+        else:
+            length += 1
+    return length
 
 
 def parse_command_line():
@@ -102,8 +182,15 @@ def parse_command_line():
                         help="Include subtotal")
     parser.add_argument('-n', dest='no_update', action='store_true',
                         help="Do not update existing count if available")
-    parser.add_argument('-t', dest='tabstop', type=int,
-                        help="Number of tabs for new comments", default=2)
+    parser.add_argument('-t', dest='tab_width', type=int,
+                        help="Number of spacesx for each tab", default=8)
+    parser.add_argument('--use-spaces', dest='use_spaces', action='store_true',
+                        help="Use spaces to align newly added comments.", default=True)
+    parser.add_argument('--use-tabs', dest='use_spaces', action='store_false',
+                        help="Use tabs to align newly added comments.")
+    parser.add_argument('-c', '--columns', dest='column', type=int,
+                        help="Column to align newly added comments.", default=50)
+
     parser.add_argument(
         "infile", nargs="?", type=argparse.FileType('r'), default=sys.stdin,
         help="Input file")
@@ -185,5 +272,7 @@ def main():
     total = 0
     for line in in_f:
         output, total = z80count(
-            line, parser, total, args.subt, args.no_update, args.tabstop, args.debug)
+            line, parser, total, args.subt, args.no_update, args.column, args.debug,
+            not args.use_spaces, args.tab_width,
+        )
         out_f.write(output)
