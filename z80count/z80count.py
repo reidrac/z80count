@@ -186,7 +186,7 @@ class Parser(object):
     """Simple parser based on a table of regexes."""
 
     # [label:] OPERATOR [OPERANDS] [; comment]
-    _LINE_RE = re.compile(r"^([\w]+:)?\s*(?P<operator>\w+)(?P<rest>\s+.*)?$")
+    _LINE_RE = re.compile(r"^([$.\w]+:)?\s*(?P<operator>\w+)(?P<rest>\s+.*)?$")
 
     def __init__(self):
         self._table = self._load_table()
