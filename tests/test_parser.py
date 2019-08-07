@@ -918,6 +918,10 @@ def test_lookup(instruction, cycles, parser_table):
     assert entry["cycles"] == cycles, "Failed: {} expected '{}' != found '{}'".format(instruction, cycles, entry["cycles"])
 
 
+##########################################################################
+# _extract_mnemonic                                                      #
+##########################################################################
+
 @pytest.mark.parametrize("line,operator", (
     ("foo: LD A, 1 ; load accumulator", "LD"),
     ("foo: CALL 0xABCD", "CALL"),
@@ -935,3 +939,22 @@ def test_extract_mnemonic(line, operator):
 
 def test_extract_mnemonic_normalizes_operator():
     assert Parser._extract_mnemonic("call 0xabcd") == "CALL"
+
+
+##########################################################################
+# _remove_label                                                          #
+##########################################################################
+
+@pytest.mark.parametrize("line,expected", (
+    ("foo: ld A, 1 ; load accumulator", "ld A, 1 ; load accumulator"),
+    ("foo: CALL 0xABCD", "CALL 0xABCD"),
+    ("foo: EI", "EI"),
+    ("LD A, 1 ; load accumulator", "LD A, 1 ; load accumulator"),
+    ("call 0xABCE", "call 0xABCE"),
+    ("EI", "EI"),
+    ("foo: ; some label", None),
+    ("foo:", None),
+    ("; some comment", None),
+))
+def test_remove_label(line, expected):
+    assert Parser._remove_label(line) == expected
