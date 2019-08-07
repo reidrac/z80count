@@ -186,13 +186,14 @@ class Parser(object):
     """Simple parser based on a table of regexes."""
 
     # [label:] OPERATOR [OPERANDS] [; comment]
-    _LINE_RE = re.compile(r"^([\w]+:)?\s*(?P<operator>\w+)(\s+.*)?$")
+    _LINE_RE = re.compile(r"^([$.\w]+:)?\s*(?P<operator>\w+)(?P<rest>\s+.*)?$")
 
     def __init__(self):
         self._table = self._load_table()
 
     def lookup(self, line):
         mnemo = self._extract_mnemonic(line)
+        line = self._remove_label(line)
         if mnemo is None or mnemo not in self._table:
             return None
         for entry in self._table[mnemo]:
@@ -224,6 +225,14 @@ class Parser(object):
         match = cls._LINE_RE.match(line)
         if match:
             return match.group("operator").upper()
+        return None
+
+    @classmethod
+    def _remove_label(cls, line):
+        match = cls._LINE_RE.match(line)
+        if match:
+            rest = match.group("rest") or ""
+            return match.group("operator") + rest
         return None
 
     @staticmethod
