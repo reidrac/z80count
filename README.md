@@ -152,6 +152,38 @@ Where A, B, T0 and T1 are:
  - T0 is the subtotal when the conditional is not met.
  - T1 is the subtotal when the conditional is met.
 
+## Config file
+
+`z80count` will look for a config file in the following places, in order:
+
+- the file given in the environment variable `Z80COUNT_RC`.
+
+- a file `z80count` in the directory given in the environment variable
+  `XDG_DEFAULT_HOME` or, if this variable is undefined or empty, in
+  the directory `~/.config`.
+
+- a file `.z80count` in the home directory.
+
+The file uses an INI format and must have a `[z80count]` section. The
+recognized options are:
+
+- `column`: integer
+- `debug`: boolean
+- `subtotals`: boolean
+- `tab width`: int
+- `update`: boolean
+- `use tabs`: boolean
+
+Example:
+
+```
+[z80count]
+  column = 45
+  update = no
+  use tabs = yes
+  tab width = 4
+```
+
 ## Editor support
 
 - [z80count-el](https://github.com/patxoca/z80count-el), emacs
