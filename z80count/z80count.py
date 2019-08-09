@@ -135,6 +135,42 @@ def locate_config_file():
     return None
 
 
+def parse_command_line():
+    parser = argparse.ArgumentParser(
+        description='Z80 Cycle Count',
+        epilog="Copyright (C) 2019 Juan J Martinez <jjm@usebox.net>")
+
+    parser.add_argument(
+        "--version", action="version", version="%(prog)s " + version)
+    parser.add_argument('-d', dest='debug', action='store_true',
+                        help="Enable debug (show the matched case)",
+                        default=None)
+    parser.add_argument('-s', dest='subt', action='store_true',
+                        help="Include subtotal",
+                        default=None)
+    parser.add_argument('-n', dest='no_update', action='store_true',
+                        help="Do not update existing count if available",
+                        default=None)
+    parser.add_argument('-T', dest='tab_width', type=int,
+                        help="Number of spaces for each tab (default: %d)" % DEF_TABSTOP,
+                        default=None)
+    parser.add_argument('-t', '--use-tabs', dest='use_tabs', action='store_true',
+                        help="Use tabs to align newly added comments (default: use spaces)",
+                        default=None)
+    parser.add_argument('-c', '--column', dest='column', type=int,
+                        help="Column to align newly added comments (default: %d)" % DEF_COLUMN,
+                        default=None)
+
+    parser.add_argument(
+        "infile", nargs="?", type=argparse.FileType('r'), default=sys.stdin,
+        help="Input file")
+    parser.add_argument(
+        "outfile", nargs="?", type=argparse.FileType('w'), default=sys.stdout,
+        help="Output file")
+
+    return parser.parse_args()
+
+
 ##########################################################################
 # z80count                                                               #
 ##########################################################################
@@ -253,44 +289,6 @@ def line_length(line, tab_width):
         else:
             length += 1
     return length
-
-
-# TODO: move to the "program arguments" section
-
-def parse_command_line():
-    parser = argparse.ArgumentParser(
-        description='Z80 Cycle Count',
-        epilog="Copyright (C) 2019 Juan J Martinez <jjm@usebox.net>")
-
-    parser.add_argument(
-        "--version", action="version", version="%(prog)s " + version)
-    parser.add_argument('-d', dest='debug', action='store_true',
-                        help="Enable debug (show the matched case)",
-                        default=None)
-    parser.add_argument('-s', dest='subt', action='store_true',
-                        help="Include subtotal",
-                        default=None)
-    parser.add_argument('-n', dest='no_update', action='store_true',
-                        help="Do not update existing count if available",
-                        default=None)
-    parser.add_argument('-T', dest='tab_width', type=int,
-                        help="Number of spaces for each tab (default: %d)" % DEF_TABSTOP,
-                        default=None)
-    parser.add_argument('-t', '--use-tabs', dest='use_tabs', action='store_true',
-                        help="Use tabs to align newly added comments (default: use spaces)",
-                        default=None)
-    parser.add_argument('-c', '--column', dest='column', type=int,
-                        help="Column to align newly added comments (default: %d)" % DEF_COLUMN,
-                        default=None)
-
-    parser.add_argument(
-        "infile", nargs="?", type=argparse.FileType('r'), default=sys.stdin,
-        help="Input file")
-    parser.add_argument(
-        "outfile", nargs="?", type=argparse.FileType('w'), default=sys.stdout,
-        help="Output file")
-
-    return parser.parse_args()
 
 
 class Parser(object):
