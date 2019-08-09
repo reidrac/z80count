@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 #
 
+import collections
 import configparser
 import json
 import sys
@@ -34,42 +35,70 @@ version = "0.7.1"
 OUR_COMMENT = re.compile(r"(\[[0-9.\s/]+\])")
 DEF_COLUMN = 50
 DEF_TABSTOP = 8
-DEFAULTS = {
-    "column": DEF_COLUMN,
-    "debug": False,
-    "subtotals": False,
-    "tab_width": DEF_TABSTOP,
-    "update": True,
-    "use_tabs": False,
-}
+
+
+def perror(message, *args):
+    print(message % args, file=sys.stderr)
 
 
 ##########################################################################
 # Program arguments                                                      #
 ##########################################################################
 
+def neg_bool(x):
+    return not bool(x)
+
+
+Option = collections.namedtuple(
+    "Option",
+    "config_name, arg_name, default, type",
+)
+
+
+DEFAULTS = [
+    Option("column",    "column",    DEF_COLUMN,  int),
+    Option("debug",     "debug",     False,       bool),
+    Option("subtotals", "subt",      False,       bool),
+    Option("tab_width", "tab_width", DEF_TABSTOP, int),
+    Option("update",    "no_update", True,        neg_bool),
+    Option("use_tabs",  "use_tabs",  False,       bool),
+]
+
+
 def get_program_args():
     config = load_config_file()
     args = parse_command_line()
-    return merge(config, args)
+    for opt in DEFAULTS:
+        if getattr(args, opt.arg_name) is None:
+            setattr(args, opt.arg_name, config[opt.config_name])
+    return args
 
 
 def load_config_file():
     parser = configparser.ConfigParser()
-    parser["z80count"] = DEFAULTS.copy()
+    parser["z80count"] = {i.config_name: i.default for i in DEFAULTS}
     config_file = locate_config_file()
     if config_file:
-        parser.read(config_file)
+        try:
+            parser.read(config_file)
+        except configparser.ParsingError:
+            perror("Error parsing config file. Using defaults.")
 
     section = parser["z80count"]
-    return {
-        "column": section.getint("column"),
-        "debug": section.getboolean("debug"),
-        "subtotals": section.getboolean("subtotals"),
-        "tab_width": section.getint("tab_width"),
-        "update": section.getboolean("update"),
-        "use_tabs": section.getboolean("use_tabs"),
-    }
+    res = {}
+    for opt in DEFAULTS:
+        v = section.get(opt.config_name)
+        try:
+            v = opt.type(v)
+        except (ValueError, TypeError):
+            perror(
+                "Error parsing config value for '%s'. Using default.",
+                opt.config_name
+            )
+            v = opt.default
+        res[opt.config_name] = v
+
+    return res
 
 
 def locate_config_file():
@@ -104,23 +133,6 @@ def locate_config_file():
         return candidate
 
     return None
-
-
-def merge(config, args):
-    if args.debug is None:
-        args.debug = config["debug"]
-    if args.subt is None:
-        args.subt = config["subtotals"]
-    if args.no_update is None:
-        args.no_update = not config["update"]
-    if args.tab_width is None:
-        args.tab_width = config["tab_width"]
-    if args.use_tabs is None:
-        args.use_tabs = config["use_tabs"]
-    if args.column is None:
-        args.column = config["column"]
-
-    return args
 
 
 ##########################################################################
