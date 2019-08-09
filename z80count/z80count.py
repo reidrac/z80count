@@ -21,8 +21,10 @@
 # THE SOFTWARE.
 #
 
+import configparser
 import json
 import sys
+import os
 import re
 import argparse
 from os import path
@@ -32,7 +34,98 @@ version = "0.7.1"
 OUR_COMMENT = re.compile(r"(\[[0-9.\s/]+\])")
 DEF_COLUMN = 50
 DEF_TABSTOP = 8
+DEFAULTS = {
+    "column": DEF_COLUMN,
+    "debug": False,
+    "subtotals": False,
+    "tab_width": DEF_TABSTOP,
+    "update": True,
+    "use_tabs": False,
+}
 
+
+##########################################################################
+# Program arguments                                                      #
+##########################################################################
+
+def get_program_args():
+    config = load_config_file()
+    args = parse_command_line()
+    return merge(config, args)
+
+
+def load_config_file():
+    parser = configparser.ConfigParser()
+    parser["z80count"] = DEFAULTS.copy()
+    config_file = locate_config_file()
+    if config_file:
+        parser.read(config_file)
+
+    section = parser["z80count"]
+    return {
+        "column": section.getint("column"),
+        "debug": section.getboolean("debug"),
+        "subtotals": section.getboolean("subtotals"),
+        "tab_width": section.getint("tab_width"),
+        "update": section.getboolean("update"),
+        "use_tabs": section.getboolean("use_tabs"),
+    }
+
+
+def locate_config_file():
+
+    # TODO: check in windows
+
+    z80count_rc = os.environ.get("Z80COUNT_RC")
+    if z80count_rc and os.isfile(z80count_rc):
+        return z80count_rc
+
+    home_dir = os.path.expanduser("~")
+
+    # NOTE: The XDG standard states:
+    #
+    # $XDG_CONFIG_HOME defines the base directory relative to which
+    # user specific configuration files should be stored. If
+    # $XDG_CONFIG_HOME is either not set or empty, a default equal to
+    # $HOME/.config should be used.
+    #
+    # https://specifications.freedesktop.org/basedir-spec/latest/ar01s03.html
+
+    xdg_config_home = os.environ.get("XDG_CONFIG_HOME")
+    if xdg_config_home is None:
+        xdg_config_home = os.path.join(home_dir, ".config")
+
+    candidate = os.path.join(xdg_config_home, "z80count")
+    if os.path.isfile(candidate):
+        return candidate
+
+    candidate = os.path.join(home_dir, ".z80count")
+    if os.path.isfile(candidate):
+        return candidate
+
+    return None
+
+
+def merge(config, args):
+    if args.debug is None:
+        args.debug = config["debug"]
+    if args.subt is None:
+        args.subt = config["subtotals"]
+    if args.no_update is None:
+        args.no_update = not config["update"]
+    if args.tab_width is None:
+        args.tab_width = config["tab_width"]
+    if args.use_tabs is None:
+        args.use_tabs = config["use_tabs"]
+    if args.column is None:
+        args.column = config["column"]
+
+    return args
+
+
+##########################################################################
+# z80count                                                               #
+##########################################################################
 
 def z80count(line,
              parser,
@@ -150,6 +243,8 @@ def line_length(line, tab_width):
     return length
 
 
+# TODO: move to the "program arguments" section
+
 def parse_command_line():
     parser = argparse.ArgumentParser(
         description='Z80 Cycle Count',
@@ -158,19 +253,23 @@ def parse_command_line():
     parser.add_argument(
         "--version", action="version", version="%(prog)s " + version)
     parser.add_argument('-d', dest='debug', action='store_true',
-                        help="Enable debug (show the matched case)")
+                        help="Enable debug (show the matched case)",
+                        default=None)
     parser.add_argument('-s', dest='subt', action='store_true',
-                        help="Include subtotal")
+                        help="Include subtotal",
+                        default=None)
     parser.add_argument('-n', dest='no_update', action='store_true',
-                        help="Do not update existing count if available")
+                        help="Do not update existing count if available",
+                        default=None)
     parser.add_argument('-T', dest='tab_width', type=int,
                         help="Number of spaces for each tab (default: %d)" % DEF_TABSTOP,
-                        default=DEF_TABSTOP)
+                        default=None)
     parser.add_argument('-t', '--use-tabs', dest='use_tabs', action='store_true',
-                        help="Use tabs to align newly added comments (default: use spaces)")
+                        help="Use tabs to align newly added comments (default: use spaces)",
+                        default=None)
     parser.add_argument('-c', '--column', dest='column', type=int,
                         help="Column to align newly added comments (default: %d)" % DEF_COLUMN,
-                        default=DEF_COLUMN)
+                        default=None)
 
     parser.add_argument(
         "infile", nargs="?", type=argparse.FileType('r'), default=sys.stdin,
@@ -252,7 +351,7 @@ class Parser(object):
 
 
 def main():
-    args = parse_command_line()
+    args = get_program_args()
     in_f = args.infile
     out_f = args.outfile
     parser = Parser()
