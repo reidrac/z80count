@@ -66,34 +66,39 @@ DEFAULTS = [
 
 
 def get_program_args():
-    config = load_config_file()
+    config_file = locate_config_file()
+    if config_file:
+        config = load_config_file(config_file, DEFAULTS)
+    else:
+        config = {i.config_name: i.default for i in DEFAULTS}
+
     args = parse_command_line()
+
+    # merge "args" and "config"
     for opt in DEFAULTS:
         if getattr(args, opt.arg_name) is None:
             setattr(args, opt.arg_name, config[opt.config_name])
     return args
 
 
-def load_config_file():
+def load_config_file(config_file, schema):
     parser = configparser.ConfigParser()
-    parser["z80count"] = {i.config_name: i.default for i in DEFAULTS}
-    config_file = locate_config_file()
-    if config_file:
-        try:
-            parser.read(config_file)
-        except configparser.ParsingError:
-            perror("Error parsing config file. Using defaults.")
+    parser["z80count"] = {i.config_name: i.default for i in schema}
+    try:
+        parser.read(config_file)
+    except configparser.ParsingError:
+        perror("Error parsing config file. Using defaults.")
 
     section = parser["z80count"]
     res = {}
-    for opt in DEFAULTS:
+    for opt in schema:
         v = section.get(opt.config_name)
         try:
             v = opt.type(v)
         except (ValueError, TypeError):
             perror(
                 "Error parsing config value for '%s'. Using default.",
-                opt.config_name
+                opt.config_name,
             )
             v = opt.default
         res[opt.config_name] = v
