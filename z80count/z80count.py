@@ -59,9 +59,9 @@ DEFAULTS = [
     Option("column",    "column",    DEF_COLUMN,  int),
     Option("debug",     "debug",     False,       bool),
     Option("subtotals", "subt",      False,       bool),
-    Option("tab_width", "tab_width", DEF_TABSTOP, int),
+    Option("tab width", "tab_width", DEF_TABSTOP, int),
     Option("update",    "no_update", True,        neg_bool),
-    Option("use_tabs",  "use_tabs",  False,       bool),
+    Option("use tabs",  "use_tabs",  False,       bool),
 ]
 
 
