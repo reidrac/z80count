@@ -45,8 +45,16 @@ def perror(message, *args):
 # Program arguments                                                      #
 ##########################################################################
 
-def neg_bool(x):
-    return not bool(x)
+def boolean(x):
+    if x in (True, "1", "on", "yes", "true"):
+        return True
+    elif x in (False, "0", "off", "no", "false"):
+        return False
+    raise ValueError(x)
+
+
+def neg_boolean(x):
+    return not boolean(x)
 
 
 Option = collections.namedtuple(
@@ -57,11 +65,11 @@ Option = collections.namedtuple(
 
 DEFAULTS = [
     Option("column",    "column",    DEF_COLUMN,  int),
-    Option("debug",     "debug",     False,       bool),
-    Option("subtotals", "subt",      False,       bool),
+    Option("debug",     "debug",     False,       boolean),
+    Option("subtotals", "subt",      False,       boolean),
     Option("tab width", "tab_width", DEF_TABSTOP, int),
-    Option("update",    "no_update", True,        neg_bool),
-    Option("use tabs",  "use_tabs",  False,       bool),
+    Option("update",    "no_update", True,        neg_boolean),
+    Option("use tabs",  "use_tabs",  False,       boolean),
 ]
 
 
