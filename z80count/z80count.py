@@ -45,6 +45,12 @@ def perror(message, *args):
 # Program arguments                                                      #
 ##########################################################################
 
+# NOTE: types as used in the schema are just the callables
+# responsibles for converting strings to python values (when the value
+# comes from the config file). They must accept python values as well
+# (when the value comes from the defaults). If the value is invalid
+# for its domain they must raise a ValueError or TypeError exception.
+
 def boolean(x):
     if x in (True, "1", "on", "yes", "true"):
         return True
@@ -74,6 +80,20 @@ DEFAULTS = [
 
 
 def get_program_args():
+    """Get program arguments.
+
+    Main entry point for the config machinery.
+
+    Gathers arguments from the ``DEFAULTS`` structure, a config file
+    and the command line. Returns a ``argparse.Namespace`` object (as
+    returned by ``argparse.Parser.parse_args``), containing the merged
+    options.
+
+    Values specified in the command line have the highest priority,
+    then the options specified in the config file and finally the
+    default values defined by ``DEFAULTS``.
+
+    """
     config_file = locate_config_file()
     if config_file:
         config = load_config_file(config_file, DEFAULTS)
@@ -116,7 +136,7 @@ def load_config_file(config_file, schema):
 
 def locate_config_file():
 
-    # TODO: check in windows
+    # TODO: check on windows
 
     z80count_rc = os.environ.get("Z80COUNT_RC")
     if z80count_rc and os.isfile(z80count_rc):
@@ -152,6 +172,9 @@ def parse_command_line():
     parser = argparse.ArgumentParser(
         description='Z80 Cycle Count',
         epilog="Copyright (C) 2019 Juan J Martinez <jjm@usebox.net>")
+
+    # NOTE: parser arguments *must* provide a default equal to None in
+    # order to check if the option has been specified or not.
 
     parser.add_argument(
         "--version", action="version", version="%(prog)s " + version)
