@@ -37,8 +37,11 @@ DEF_COLUMN = 50
 DEF_TABSTOP = 8
 
 
-def perror(message, *args):
+def perror(message, *args, **kwargs):
+    exc = kwargs.get("exc")
     print(message % args, file=sys.stderr)
+    if exc:
+        print(str(exc))
 
 
 ##########################################################################
@@ -114,8 +117,8 @@ def load_config_file(config_file, schema):
     parser["z80count"] = {i.config_name: i.default for i in schema}
     try:
         parser.read(config_file)
-    except configparser.ParsingError:
-        perror("Error parsing config file. Using defaults.")
+    except configparser.Error as e:
+        perror("Error parsing config file. Using defaults.", exc=e)
 
     section = parser["z80count"]
     res = {}
@@ -123,10 +126,11 @@ def load_config_file(config_file, schema):
         v = section.get(opt.config_name)
         try:
             v = opt.type(v)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError) as e:
             perror(
                 "Error parsing config value for '%s'. Using default.",
                 opt.config_name,
+                exc=e,
             )
             v = opt.default
         res[opt.config_name] = v
