@@ -63,10 +63,6 @@ def boolean(x):
     raise ValueError(x)
 
 
-def neg_boolean(x):
-    return not boolean(x)
-
-
 Option = collections.namedtuple(
     "Option",
     "config_name, arg_name, default, type",
@@ -78,7 +74,7 @@ DEFAULTS = [
     Option("debug",     "debug",     False,       boolean),
     Option("subtotals", "subt",      False,       boolean),
     Option("tab width", "tab_width", DEF_TABSTOP, int),
-    Option("update",    "no_update", True,        neg_boolean),
+    Option("keep cycles", "no_update", False,     boolean),
     Option("use tabs",  "use_tabs",  False,       boolean),
 ]
 
