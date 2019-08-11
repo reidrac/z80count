@@ -35,6 +35,7 @@ version = "0.7.1"
 OUR_COMMENT = re.compile(r"(\[[0-9.\s/]+\])")
 DEF_COLUMN = 50
 DEF_TABSTOP = 8
+DEF_CONFIG_FILE = "z80countrc"
 
 
 def perror(message, *args, **kwargs):
@@ -161,11 +162,11 @@ def locate_config_file():
     if xdg_config_home is None:
         xdg_config_home = os.path.join(home_dir, ".config")
 
-    candidate = os.path.join(xdg_config_home, "z80count")
+    candidate = os.path.join(xdg_config_home, DEF_CONFIG_FILE)
     if os.path.isfile(candidate):
         return candidate
 
-    candidate = os.path.join(home_dir, ".z80count")
+    candidate = os.path.join(home_dir, "." + DEF_CONFIG_FILE)
     if os.path.isfile(candidate):
         return candidate
 
