@@ -104,12 +104,10 @@ def get_program_args():
     else:
         config = {i.config_name: i.default for i in DEFAULTS}
 
-    args = parse_command_line()
+    args = parse_command_line(
+        {i.arg_name: config[i.config_name] for i in DEFAULTS}
+    )
 
-    # merge "args" and "config"
-    for opt in DEFAULTS:
-        if getattr(args, opt.arg_name) is None:
-            setattr(args, opt.arg_name, config[opt.config_name])
     return args
 
 
@@ -173,34 +171,31 @@ def locate_config_file():
     return None
 
 
-def parse_command_line():
+def parse_command_line(defaults):
     parser = argparse.ArgumentParser(
         description='Z80 Cycle Count',
         epilog="Copyright (C) 2019 Juan J Martinez <jjm@usebox.net>")
-
-    # NOTE: parser arguments *must* provide a default equal to None in
-    # order to check if the option has been specified or not.
 
     parser.add_argument(
         "--version", action="version", version="%(prog)s " + version)
     parser.add_argument('-d', dest='debug', action='store_true',
                         help="Enable debug (show the matched case)",
-                        default=None)
+                        default=defaults["debug"])
     parser.add_argument('-s', dest='subt', action='store_true',
                         help="Include subtotal",
-                        default=None)
+                        default=defaults["subt"])
     parser.add_argument('-n', dest='no_update', action='store_true',
                         help="Do not update existing count if available",
-                        default=None)
+                        default=defaults["no_update"])
     parser.add_argument('-T', dest='tab_width', type=int,
                         help="Number of spaces for each tab (default: %d)" % DEF_TABSTOP,
-                        default=None)
+                        default=defaults["tab_width"])
     parser.add_argument('-t', '--use-tabs', dest='use_tabs', action='store_true',
                         help="Use tabs to align newly added comments (default: use spaces)",
-                        default=None)
+                        default=defaults["use_tabs"])
     parser.add_argument('-c', '--column', dest='column', type=int,
                         help="Column to align newly added comments (default: %d)" % DEF_COLUMN,
-                        default=None)
+                        default=defaults["column"])
 
     parser.add_argument(
         "infile", nargs="?", type=argparse.FileType('r'), default=sys.stdin,
