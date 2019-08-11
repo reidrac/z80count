@@ -158,30 +158,33 @@ Where A, B, T0 and T1 are:
 
 - the file given in the environment variable `Z80COUNT_RC`.
 
-- a file `z80count` in the directory given in the environment variable
+- a file `z80countrc` in the directory given in the environment variable
   `XDG_DEFAULT_HOME` or, if this variable is undefined or empty, in
   the directory `~/.config`.
 
-- a file `.z80count` in the home directory.
-
-The file uses an INI format and must have a `[z80count]` section. The
-recognized options are:
-
-- `column`: integer
-- `debug`: boolean
-- `subtotals`: boolean
-- `tab width`: int
-- `update`: boolean
-- `use tabs`: boolean
+- a file `.z80countrc` in the home directory.
 
 Example:
 
 ```
 [z80count]
-  column = 45
-  update = no
-  use tabs = yes
-  tab width = 4
+# Column to align newly added comments
+# column = 50
+
+# Enable debug (show the matched case)
+# debug = no
+
+# Include subtotals
+# subtotals = no
+
+# Number of spaces for each tab
+# tab width = 8
+
+# Keep previous cycle annotations in the comment.
+# keep cycles = no
+
+# Use tabs to align newly added comments instead of spaces
+# use tabs = yes
 ```
 
 ## Editor support
