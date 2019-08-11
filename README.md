@@ -152,6 +152,41 @@ Where A, B, T0 and T1 are:
  - T0 is the subtotal when the conditional is not met.
  - T1 is the subtotal when the conditional is met.
 
+## Config file
+
+`z80count` will look for a config file in the following places, in order:
+
+- the file given in the environment variable `Z80COUNT_RC`.
+
+- a file `z80countrc` in the directory given in the environment variable
+  `XDG_DEFAULT_HOME` or, if this variable is undefined or empty, in
+  the directory `~/.config`.
+
+- a file `.z80countrc` in the home directory.
+
+Example:
+
+```
+[z80count]
+# Column to align newly added comments
+# column = 50
+
+# Enable debug (show the matched case)
+# debug = no
+
+# Include subtotals
+# subtotals = no
+
+# Number of spaces for each tab
+# tab width = 8
+
+# Keep previous cycle annotations in the comment.
+# keep cycles = no
+
+# Use tabs to align newly added comments instead of spaces
+# use tabs = yes
+```
+
 ## Editor support
 
 - [z80count-el](https://github.com/patxoca/z80count-el), emacs

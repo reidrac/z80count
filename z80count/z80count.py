@@ -21,8 +21,11 @@
 # THE SOFTWARE.
 #
 
+import collections
+import configparser
 import json
 import sys
+import os
 import re
 import argparse
 from os import path
@@ -32,7 +35,177 @@ version = "0.7.1"
 OUR_COMMENT = re.compile(r"(\[[0-9.\s/]+\])")
 DEF_COLUMN = 50
 DEF_TABSTOP = 8
+DEF_CONFIG_FILE = "z80countrc"
 
+
+def perror(message, *args, **kwargs):
+    exc = kwargs.get("exc")
+    print(message % args, file=sys.stderr)
+    if exc:
+        print(str(exc))
+
+
+##########################################################################
+# Program arguments                                                      #
+##########################################################################
+
+# NOTE: types as used in the schema are just the callables
+# responsibles for converting strings to python values (when the value
+# comes from the config file). They must accept python values as well
+# (when the value comes from the defaults). If the value is invalid
+# for its domain they must raise a ValueError or TypeError exception.
+
+def boolean(x):
+    if x in (True, "1", "on", "yes", "true"):
+        return True
+    elif x in (False, "0", "off", "no", "false"):
+        return False
+    raise ValueError(x)
+
+
+Option = collections.namedtuple(
+    "Option",
+    "config_name, arg_name, default, type",
+)
+
+
+DEFAULTS = [
+    Option("column",    "column",    DEF_COLUMN,  int),
+    Option("debug",     "debug",     False,       boolean),
+    Option("subtotals", "subt",      False,       boolean),
+    Option("tab width", "tab_width", DEF_TABSTOP, int),
+    Option("keep cycles", "no_update", False,     boolean),
+    Option("use tabs",  "use_tabs",  False,       boolean),
+]
+
+
+def get_program_args():
+    """Get program arguments.
+
+    Main entry point for the config machinery.
+
+    Gathers arguments from the ``DEFAULTS`` structure, a config file
+    and the command line. Returns a ``argparse.Namespace`` object (as
+    returned by ``argparse.Parser.parse_args``), containing the merged
+    options.
+
+    Values specified in the command line have the highest priority,
+    then the options specified in the config file and finally the
+    default values defined by ``DEFAULTS``.
+
+    """
+    config_file = locate_config_file()
+    if config_file:
+        config = load_config_file(config_file, DEFAULTS)
+    else:
+        config = {i.config_name: i.default for i in DEFAULTS}
+
+    args = parse_command_line(
+        {i.arg_name: config[i.config_name] for i in DEFAULTS}
+    )
+
+    return args
+
+
+def load_config_file(config_file, schema):
+    parser = configparser.ConfigParser()
+    parser["z80count"] = {i.config_name: i.default for i in schema}
+    try:
+        parser.read(config_file)
+    except configparser.Error as e:
+        perror("Error parsing config file. Using defaults.", exc=e)
+
+    section = parser["z80count"]
+    res = {}
+    for opt in schema:
+        v = section.get(opt.config_name)
+        try:
+            v = opt.type(v)
+        except (ValueError, TypeError) as e:
+            perror(
+                "Error parsing config value for '%s'. Using default.",
+                opt.config_name,
+                exc=e,
+            )
+            v = opt.default
+        res[opt.config_name] = v
+
+    return res
+
+
+def locate_config_file():
+
+    # TODO: check on windows
+
+    z80count_rc = os.environ.get("Z80COUNT_RC")
+    if z80count_rc and os.isfile(z80count_rc):
+        return z80count_rc
+
+    home_dir = os.path.expanduser("~")
+
+    # NOTE: The XDG standard states:
+    #
+    # $XDG_CONFIG_HOME defines the base directory relative to which
+    # user specific configuration files should be stored. If
+    # $XDG_CONFIG_HOME is either not set or empty, a default equal to
+    # $HOME/.config should be used.
+    #
+    # https://specifications.freedesktop.org/basedir-spec/latest/ar01s03.html
+
+    xdg_config_home = os.environ.get("XDG_CONFIG_HOME")
+    if xdg_config_home is None:
+        xdg_config_home = os.path.join(home_dir, ".config")
+
+    candidate = os.path.join(xdg_config_home, DEF_CONFIG_FILE)
+    if os.path.isfile(candidate):
+        return candidate
+
+    candidate = os.path.join(home_dir, "." + DEF_CONFIG_FILE)
+    if os.path.isfile(candidate):
+        return candidate
+
+    return None
+
+
+def parse_command_line(defaults):
+    parser = argparse.ArgumentParser(
+        description='Z80 Cycle Count',
+        epilog="Copyright (C) 2019 Juan J Martinez <jjm@usebox.net>")
+
+    parser.add_argument(
+        "--version", action="version", version="%(prog)s " + version)
+    parser.add_argument('-d', dest='debug', action='store_true',
+                        help="Enable debug (show the matched case)",
+                        default=defaults["debug"])
+    parser.add_argument('-s', dest='subt', action='store_true',
+                        help="Include subtotal",
+                        default=defaults["subt"])
+    parser.add_argument('-n', dest='no_update', action='store_true',
+                        help="Do not update existing count if available",
+                        default=defaults["no_update"])
+    parser.add_argument('-T', dest='tab_width', type=int,
+                        help="Number of spaces for each tab (default: %d)" % DEF_TABSTOP,
+                        default=defaults["tab_width"])
+    parser.add_argument('-t', '--use-tabs', dest='use_tabs', action='store_true',
+                        help="Use tabs to align newly added comments (default: use spaces)",
+                        default=defaults["use_tabs"])
+    parser.add_argument('-c', '--column', dest='column', type=int,
+                        help="Column to align newly added comments (default: %d)" % DEF_COLUMN,
+                        default=defaults["column"])
+
+    parser.add_argument(
+        "infile", nargs="?", type=argparse.FileType('r'), default=sys.stdin,
+        help="Input file")
+    parser.add_argument(
+        "outfile", nargs="?", type=argparse.FileType('w'), default=sys.stdout,
+        help="Output file")
+
+    return parser.parse_args()
+
+
+##########################################################################
+# z80count                                                               #
+##########################################################################
 
 def z80count(line,
              parser,
@@ -150,38 +323,6 @@ def line_length(line, tab_width):
     return length
 
 
-def parse_command_line():
-    parser = argparse.ArgumentParser(
-        description='Z80 Cycle Count',
-        epilog="Copyright (C) 2019 Juan J Martinez <jjm@usebox.net>")
-
-    parser.add_argument(
-        "--version", action="version", version="%(prog)s " + version)
-    parser.add_argument('-d', dest='debug', action='store_true',
-                        help="Enable debug (show the matched case)")
-    parser.add_argument('-s', dest='subt', action='store_true',
-                        help="Include subtotal")
-    parser.add_argument('-n', dest='no_update', action='store_true',
-                        help="Do not update existing count if available")
-    parser.add_argument('-T', dest='tab_width', type=int,
-                        help="Number of spaces for each tab (default: %d)" % DEF_TABSTOP,
-                        default=DEF_TABSTOP)
-    parser.add_argument('-t', '--use-tabs', dest='use_tabs', action='store_true',
-                        help="Use tabs to align newly added comments (default: use spaces)")
-    parser.add_argument('-c', '--column', dest='column', type=int,
-                        help="Column to align newly added comments (default: %d)" % DEF_COLUMN,
-                        default=DEF_COLUMN)
-
-    parser.add_argument(
-        "infile", nargs="?", type=argparse.FileType('r'), default=sys.stdin,
-        help="Input file")
-    parser.add_argument(
-        "outfile", nargs="?", type=argparse.FileType('w'), default=sys.stdout,
-        help="Output file")
-
-    return parser.parse_args()
-
-
 class Parser(object):
     """Simple parser based on a table of regexes."""
 
@@ -252,7 +393,7 @@ class Parser(object):
 
 
 def main():
-    args = parse_command_line()
+    args = get_program_args()
     in_f = args.infile
     out_f = args.outfile
     parser = Parser()
