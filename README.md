@@ -180,7 +180,7 @@ Example:
 # Number of spaces for each tab
 # tab width = 8
 
-# Keep previous cycle annotations in the comment.
+# Keep previous cycle annotations in the comment
 # keep cycles = no
 
 # Use tabs to align newly added comments instead of spaces
