@@ -30,7 +30,7 @@ import re
 import argparse
 from os import path
 
-version = "0.7.1"
+version = "0.8.0"
 
 OUR_COMMENT = re.compile(r"(\[[0-9.\s/]+\])")
 DEF_COLUMN = 50
