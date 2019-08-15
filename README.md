@@ -8,22 +8,24 @@ Z80 assembler syntax I use.
 
 ![Demo with vim](https://github.com/reidrac/z80count/raw/master//etc/demo-vim.gif)
 
-## Installation
+## Install
+
+`z80count` requires Python 3.
 
 To install for production you can use `pip`:
 
-    pip install --user z80count
+    pip3 install --user z80count
 
 Or you can download the package from [z80count's releases
 tab](https://github.com/reidrac/z80count/releases), unpack and run:
 
-    python setup.py install
+    python3 setup.py install
 
-To install for developmet run:
+To install for development run:
 
     git clone https://github.com/reidrac/z80count.git
     cd z80count
-    pip install -e ".[dev]"
+    pip3 install -e ".[dev]"
 
 ## Usage
 
