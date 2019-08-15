@@ -45,9 +45,9 @@ def perror(message, *args, **kwargs):
     print(message % args, file=sys.stderr)
 
 
-##########################################################################
-# Program arguments                                                      #
-##########################################################################
+#
+# Program arguments
+#
 
 # NOTE: types as used in the schema are just the callables
 # responsibles for converting strings to python values (when the value
@@ -202,9 +202,9 @@ def parse_command_line(defaults):
     return parser.parse_args()
 
 
-##########################################################################
-# z80count                                                               #
-##########################################################################
+#
+# z80count
+#
 
 def z80count(line,
              parser,
@@ -254,7 +254,8 @@ def format_line(line, entry, total, total_cond, subt, update, column,
         comment += " case{%s}" % entry["case"]
 
     if len(line) == 1:
-        comment = comment_alignment(line[0], column, use_tabs, tab_width) + comment
+        comment = comment_alignment(
+            line[0], column, use_tabs, tab_width) + comment
     out = line[0] + comment
     if len(line) > 1:
         if update:
@@ -323,6 +324,7 @@ def line_length(line, tab_width):
 
 
 class Parser(object):
+
     """Simple parser based on a table of regexes."""
 
     # [label:] OPERATOR [OPERANDS] [; comment]
@@ -377,7 +379,8 @@ class Parser(object):
 
     @staticmethod
     def _init_entry(entry):
-        entry["cregex"] = re.compile(r"^\s*" + entry["regex"] + r"\s*(;.*)?$", re.I)
+        entry["cregex"] = re.compile(
+            r"^\s*" + entry["regex"] + r"\s*(;.*)?$", re.I)
         cycles = entry["cycles"]
         if "/" in cycles:
             c = cycles.split("/")
