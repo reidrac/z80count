@@ -138,7 +138,7 @@ def locate_config_file():
     # TODO: check on windows
 
     z80count_rc = os.environ.get("Z80COUNT_RC")
-    if z80count_rc and os.isfile(z80count_rc):
+    if z80count_rc and os.path.isfile(z80count_rc):
         return z80count_rc
 
     home_dir = os.path.expanduser("~")
