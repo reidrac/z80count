@@ -404,3 +404,6 @@ def main():
             args.debug,
         )
         out_f.write(output)
+
+if __name__ == "__main__":
+    main()
