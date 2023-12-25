@@ -1,3 +1,0 @@
-include etc/*
-include tests/*
-include z80count/z80table.json
